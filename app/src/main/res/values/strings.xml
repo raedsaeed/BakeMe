@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">BakeMe</string>
+    <string name="prev_button_contDescrip">Media player previous button</string>
+    <string name="play_button_contDescrip">Media player play button</string>
+    <string name="pause_button_contDescrip">Media player pause button</string>
+    <string name="navigate_back"><![CDATA[<<]]></string>
+    <string name="navigate_forward"><![CDATA[>>]]></string>
+    <string name="navigate_forward_contDescrip">navigate to next step</string>
+    <string name="navigate_back_contDescrip">Navigate back</string>
+    <string name="recipe_card_image_contDescrip">Recipe card image</string>
+</resources>
