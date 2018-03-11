@@ -123,15 +123,15 @@ public class Recipe implements Parcelable {
         return 0;
     }
 
-    public List<Recipe> getRecipeList() {
-        return recipeList;
-    }
-
-    public void setRecipeList(List<Recipe> recipeList) {
-        this.recipeList = recipeList;
-    }
-
-    @SerializedName("recipeList")
-    private List<Recipe> recipeList;
+//    public static List<Recipe> getRecipeList() {
+//        return recipeList;
+//    }
+//
+//    public void setRecipeList(List<Recipe> recipeList) {
+//        this.recipeList = recipeList;
+//    }
+//
+//    @SerializedName("recipeList")
+//    private static List<Recipe> recipeList;
 
 }

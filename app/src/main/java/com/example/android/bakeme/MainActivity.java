@@ -38,17 +38,16 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         ApiInterface apiCall = ApiClient.getClient().create(ApiInterface.class);
 
         Call<List<Recipe>> call = apiCall.getRecipes();
-        call.enqueue(new Callback<Recipe>() {
+        call.enqueue(new Callback<List<Recipe>>() {
             @Override
-            public void onResponse(Call<Recipe> call, Response<Recipe> response) {
+            public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
                 if(response.isSuccessful()) {
-                    List<Recipe> items = response.body().getRecipeList();
+                    List<Recipe> cardRecipeList = response.body();
                 }
-
             }
 
             @Override
-            public void onFailure(Call<Recipe> call, Throwable t) {
+            public void onFailure(Call<List<Recipe>> call, Throwable t) {
 
             }
         });

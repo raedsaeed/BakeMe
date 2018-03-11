@@ -4,16 +4,12 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Created by HildePols on 10.03.18.
+ * {@link ApiClient} offers a built retrofit to access the api.
  */
-
 public class ApiClient {
-    // Trailing slash is needed
-
     public static final String BASE_URL = "https://d17h27t6h515a5.cloudfront.net/";
 
     private static Retrofit retrofit = null;
-
 
     public static Retrofit getClient() {
         if (retrofit==null) {
@@ -23,7 +19,5 @@ public class ApiClient {
                     .build();
         }
         return retrofit;
-
-
     }
 }
