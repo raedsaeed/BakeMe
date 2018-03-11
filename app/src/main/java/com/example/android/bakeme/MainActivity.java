@@ -28,13 +28,6 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         super.onCreate(savedInstanceState);
         mainBinder = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
-        //set up adapter and RecyclerView.
-        recipeCardAdapter = new RecipeCardAdapter(this, recipeList, this);
-        mainBinder.recipeOverviewRv.setAdapter(recipeCardAdapter);
-        mainBinder.recipeOverviewRv.setLayoutManager(new GridLayoutManager(this,
-                GridLayoutManager.DEFAULT_SPAN_COUNT));
-        recipeCardAdapter.notifyDataSetChanged();
-
         ApiInterface apiCall = ApiClient.getClient().create(ApiInterface.class);
 
         Call<List<Recipe>> call = apiCall.getRecipes();
@@ -43,6 +36,8 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
             public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
                 if(response.isSuccessful()) {
                     List<Recipe> cardRecipeList = response.body();
+                    recipeList.addAll(cardRecipeList);
+                    setAdapter();
                 }
             }
 
@@ -51,6 +46,16 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
 
             }
         });
+
+    }
+
+    private void setAdapter() {
+        //set up adapter and RecyclerView.
+        recipeCardAdapter = new RecipeCardAdapter(this, recipeList, this);
+        mainBinder.recipeOverviewRv.setAdapter(recipeCardAdapter);
+        mainBinder.recipeOverviewRv.setLayoutManager(new GridLayoutManager(this,
+                GridLayoutManager.DEFAULT_SPAN_COUNT));
+        recipeCardAdapter.notifyDataSetChanged();
     }
 
     @Override
