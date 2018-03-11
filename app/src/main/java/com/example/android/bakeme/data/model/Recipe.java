@@ -127,6 +127,11 @@ public class Recipe implements Parcelable {
         return recipeList;
     }
 
+    public void setRecipeList(List<Recipe> recipeList) {
+        this.recipeList = recipeList;
+    }
+
+    @SerializedName("recipeList")
     private List<Recipe> recipeList;
 
 }
