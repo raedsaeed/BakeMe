@@ -1,5 +1,6 @@
 package com.example.android.bakeme.data.model;
 
+import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
@@ -15,7 +16,7 @@ import retrofit2.Retrofit;
  * to enable {@link Retrofit} to use it and implements {@link Parcelable} to enable
  * data persistence.
  */
-public class Recipe {
+public class Recipe implements Parcelable {
 
     @Expose
     @SerializedName("image")
@@ -35,6 +36,25 @@ public class Recipe {
     @Expose
     @SerializedName("id")
     private int id;
+
+    protected Recipe(Parcel in) {
+        image = in.readString();
+        servings = in.readInt();
+        name = in.readString();
+        id = in.readInt();
+    }
+
+    public static final Creator<Recipe> CREATOR = new Creator<Recipe>() {
+        @Override
+        public Recipe createFromParcel(Parcel in) {
+            return new Recipe(in);
+        }
+
+        @Override
+        public Recipe[] newArray(int size) {
+            return new Recipe[size];
+        }
+    };
 
     public String getImage() {
         return image;
@@ -84,7 +104,20 @@ public class Recipe {
         this.id = id;
     }
 
-    public static class Steps {
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(image);
+        dest.writeInt(servings);
+        dest.writeString(name);
+        dest.writeInt(id);
+    }
+
+    public static class Steps implements Parcelable {
         @Expose
         @SerializedName("thumbnailURL")
         private String thumbnailurl;
@@ -100,6 +133,26 @@ public class Recipe {
         @Expose
         @SerializedName("id")
         private int id;
+
+        protected Steps(Parcel in) {
+            thumbnailurl = in.readString();
+            videourl = in.readString();
+            description = in.readString();
+            shortdescription = in.readString();
+            id = in.readInt();
+        }
+
+        public static final Creator<Steps> CREATOR = new Creator<Steps>() {
+            @Override
+            public Steps createFromParcel(Parcel in) {
+                return new Steps(in);
+            }
+
+            @Override
+            public Steps[] newArray(int size) {
+                return new Steps[size];
+            }
+        };
 
         public String getThumbnailurl() {
             return thumbnailurl;
@@ -140,9 +193,23 @@ public class Recipe {
         public void setId(int id) {
             this.id = id;
         }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(thumbnailurl);
+            dest.writeString(videourl);
+            dest.writeString(description);
+            dest.writeString(shortdescription);
+            dest.writeInt(id);
+        }
     }
 
-    public static class Ingredients {
+    public static class Ingredients implements Parcelable {
         @Expose
         @SerializedName("ingredient")
         private String ingredient;
@@ -151,7 +218,37 @@ public class Recipe {
         private String measure;
         @Expose
         @SerializedName("quantity")
-        private int quantity;
+        private double quantity;
+
+        protected Ingredients(Parcel in) {
+            ingredient = in.readString();
+            measure = in.readString();
+            quantity = in.readDouble();
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(ingredient);
+            dest.writeString(measure);
+            dest.writeDouble(quantity);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        public static final Creator<Ingredients> CREATOR = new Creator<Ingredients>() {
+            @Override
+            public Ingredients createFromParcel(Parcel in) {
+                return new Ingredients(in);
+            }
+
+            @Override
+            public Ingredients[] newArray(int size) {
+                return new Ingredients[size];
+            }
+        };
 
         public String getIngredient() {
             return ingredient;
@@ -169,11 +266,11 @@ public class Recipe {
             this.measure = measure;
         }
 
-        public int getQuantity() {
+        public double getQuantity() {
             return quantity;
         }
 
-        public void setQuantity(int quantity) {
+        public void setQuantity(double quantity) {
             this.quantity = quantity;
         }
     }
