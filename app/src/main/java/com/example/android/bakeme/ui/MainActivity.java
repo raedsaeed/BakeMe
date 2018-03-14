@@ -1,4 +1,4 @@
-package com.example.android.bakeme;
+package com.example.android.bakeme.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.View;
 
+import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.adapter.RecipeCardAdapter;
 import com.example.android.bakeme.data.api.ApiClient;

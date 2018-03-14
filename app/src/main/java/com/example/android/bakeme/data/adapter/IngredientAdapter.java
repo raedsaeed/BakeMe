@@ -8,11 +8,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.android.bakeme.R;
-import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
 
 import java.util.ArrayList;
-import java.util.zip.Inflater;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,11 +23,11 @@ public class IngredientAdapter
         extends RecyclerView.Adapter<IngredientAdapter.IngredientViewHolder> {
 
     Context ctxt;
-    ArrayList<Ingredients> measurements;
+    ArrayList<Ingredients> ingredientsList;
 
-    public IngredientAdapter(Context ctxt, ArrayList<Ingredients> measurements) {
+    public IngredientAdapter(Context ctxt, ArrayList<Ingredients> ingredientsList) {
         this.ctxt = ctxt;
-        this.measurements = measurements;
+        this.ingredientsList = ingredientsList;
     }
 
     @Override
@@ -43,7 +41,7 @@ public class IngredientAdapter
 
     @Override
     public void onBindViewHolder(IngredientAdapter.IngredientViewHolder holder, int position) {
-        Ingredients currentItem = this.measurements.get(position);
+        Ingredients currentItem = this.ingredientsList.get(position);
 
         holder.ingredientTv.setText(currentItem.toString());
 
@@ -51,11 +49,11 @@ public class IngredientAdapter
 
     @Override
     public int getItemCount() {
-        if (measurements == null) return 0;
-        else return measurements.size();
+        if (ingredientsList == null) return 0;
+        else return ingredientsList.size();
     }
 
-    public class IngredientViewHolder extends RecyclerView.ViewHolder {
+    public class IngredientViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         @BindView(R.id.ingredient_tv)
         TextView ingredientTv;
@@ -63,6 +61,12 @@ public class IngredientAdapter
         public IngredientViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+
         }
     }
 }
