@@ -1,4 +1,4 @@
-package com.example.android.bakeme.data.rest;
+package com.example.android.bakeme.data.api;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

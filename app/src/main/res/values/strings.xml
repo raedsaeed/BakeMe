@@ -8,4 +8,5 @@
     <string name="navigate_forward_contDescrip">navigate to next step</string>
     <string name="navigate_back_contDescrip">Navigate back</string>
     <string name="recipe_card_image_contDescrip">Recipe card image</string>
+    <string name="no_internet">There is currently not internet connection.</string>
 </resources>

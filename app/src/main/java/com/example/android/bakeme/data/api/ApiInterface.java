@@ -1,12 +1,11 @@
-package com.example.android.bakeme.data.rest;
+package com.example.android.bakeme.data.api;
 
-import com.example.android.bakeme.data.model.Recipe;
+import com.example.android.bakeme.data.Recipe;
 
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.Path;
 
 /**
  * {@link ApiInterface} uses {@link retrofit2.Retrofit} to retrieve the information from the API.

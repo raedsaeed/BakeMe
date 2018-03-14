@@ -1,4 +1,4 @@
-package com.example.android.bakeme.data.model;
+package com.example.android.bakeme.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -272,6 +272,11 @@ public class Recipe implements Parcelable {
 
         public void setQuantity(double quantity) {
             this.quantity = quantity;
+        }
+
+        @Override
+        public String toString() {
+            return "– " + quantity + " " + measure +  " " + ingredient;
         }
     }
 }

@@ -18,7 +18,8 @@
             android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_launcher_foreground"/>
 
         <TextView
             android:id="@+id/card_name_tv"
@@ -31,6 +32,15 @@
             app:layout_constraintEnd_toEndOf="@+id/card_image_iv"
             app:layout_constraintStart_toStartOf="@+id/card_image_iv"
             tools:text="Recipe Name" />
+
+        <TextView
+            android:id="@+id/card_serving_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            app:layout_constraintEnd_toEndOf="@+id/card_image_iv"
+            app:layout_constraintTop_toTopOf="@+id/card_image_iv"
+            tools:text="Serves: 4" />
 
     </android.support.constraint.ConstraintLayout>
 </layout>

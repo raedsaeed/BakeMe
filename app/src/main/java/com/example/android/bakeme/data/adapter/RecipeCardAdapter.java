@@ -1,4 +1,4 @@
-package com.example.android.bakeme;
+package com.example.android.bakeme.data.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -8,10 +8,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.android.bakeme.data.model.Recipe;
+import com.example.android.bakeme.R;
+import com.example.android.bakeme.data.Recipe;
+import com.example.android.bakeme.data.Recipe.Steps;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -20,6 +23,8 @@ import butterknife.ButterKnife;
  * {@link RecipeCardAdapter} is a {@link RecyclerView.Adapter} to populate the RecipeCards.
  */
 public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.RecipeCardHolder> {
+
+    String LOG_TAG = RecipeCardAdapter.class.getSimpleName();
 
     private final Context ctxt;
     private final ArrayList<Recipe> recipeList;
@@ -68,7 +73,36 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
     public void onBindViewHolder(RecipeCardHolder holder, int position) {
         Recipe currentRecipe = this.recipeList.get(position);
 
-        Picasso.with(ctxt).load(currentRecipe.getImage()).into(holder.cardImageIv);
+        int recipeId = currentRecipe.getId();
+
+        List<Steps> currentStep = currentRecipe.getSteps();
+
+        // currently there are no images available in the api, but assuming it would be updated at
+        // some point this code will display the image or a thumbnail.
+        String recipeImage = null;
+        //get image if available
+        if (!currentRecipe.getImage().isEmpty()) {
+            recipeImage = currentRecipe.getImage();
+
+            //if there is no image, get the last thumbnail in the list
+        } else if (currentRecipe.getImage().isEmpty()) {
+            for (int i = currentStep.size() - 1; i > 1; i--) {
+                Steps lastStep = currentStep.get(i);
+                recipeImage = lastStep.getThumbnailurl();
+                if (!recipeImage.isEmpty()) break;
+            }
+            //if there are not thumbnails set image to null so app icon is shown
+            assert recipeImage != null;
+            if (recipeImage.isEmpty()) recipeImage = null;
+        }
+
+        Picasso.with(ctxt).load(recipeImage)
+                .placeholder(R.drawable.ic_launcher_foreground)
+                .error(R.drawable.ic_launcher_foreground)
+                .into(holder.cardImageIv);
+
+        String servingText = "Serves: " + currentRecipe.getServings();
+        holder.cardServingTv.setText(servingText);
 
         holder.cardNameTv.setText(currentRecipe.getName());
     }
@@ -94,19 +128,26 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
      */
     public class RecipeCardHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        @BindView(R.id.card_image_iv) ImageView cardImageIv;
-        @BindView(R.id.card_name_tv) TextView cardNameTv;
+        @BindView(R.id.card_image_iv)
+        ImageView cardImageIv;
+        @BindView(R.id.card_name_tv)
+        TextView cardNameTv;
+        @BindView(R.id.card_serving_tv)
+        TextView cardServingTv;
 
-        /** super constructor
+        /**
+         * super constructor
          *
          * @param itemView is the holder in question.
          */
         public RecipeCardHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(this);
         }
 
-        /** provide the selected Recipe when clicked
+        /**
+         * provide the selected Recipe when clicked
          *
          * @param v is the view in question.
          */
