@@ -24,8 +24,6 @@ import butterknife.ButterKnife;
  */
 public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.RecipeCardHolder> {
 
-    String LOG_TAG = RecipeCardAdapter.class.getSimpleName();
-
     private final Context ctxt;
     private final ArrayList<Recipe> recipeList;
 

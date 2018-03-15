@@ -1,10 +1,8 @@
 package com.example.android.bakeme.ui;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,14 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import timber.log.Timber;
 
 /**
  * {@link OverviewFragment} is a {@link Fragment} offering the needed ingredients and steps for the
  * selected recipe.
  */
 public class OverviewFragment extends Fragment {
-
-    private static final String LOG_TAG = DetailActivity.class.getSimpleName();
 
     Recipe selectedRecipe;
 
@@ -47,7 +44,7 @@ public class OverviewFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.overview_fragment, container, false);
 
-        Log.v(LOG_TAG, "selected recipe: " + selectedRecipe); //TODO: returns null!
+        Timber.v("selected recipe: %s", selectedRecipe); //TODO: returns null!
 
         //instantiate lists and retrieve the provided information for each.
         ingredientsList = new ArrayList<>();

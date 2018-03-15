@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.View;
 
 import com.example.android.bakeme.R;
@@ -26,10 +25,9 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements RecipeCardAdapter.RecipeClickHandler {
-
-    String LOG_TAG = MainActivity.class.getSimpleName();
 
     ActivityMainBinding mainBinder;
     RecipeCardAdapter recipeCardAdapter;
@@ -44,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         super.onCreate(savedInstanceState);
         mainBinder = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
+        Timber.plant(new Timber.DebugTree());
+
         if (savedInstanceState != null && savedInstanceState.containsKey(RECIPE_KEY)) {
             mainBinder.alertView.progressPb.setVisibility(View.GONE);
             mainBinder.alertView.alertTv.setVisibility(View.GONE);
@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         }
     }
 
+    //Make sure we have internet before we load the data.
     private void checkNetworkAndLoadData() {
         ConnectivityManager connectMan = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -76,20 +77,19 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         //retrieve data and send to adapter to display
                         List<Recipe> recipes = response.body();
                         recipeList.addAll(recipes);
-                        Log.v(LOG_TAG, "ingredients: " + recipeList.get(0).getIngredients().size());
-
+                        Timber.v("ingredients: %s", recipeList.get(0).getIngredients().size());
 
                         setAdapter(MainActivity.this, recipeList, MainActivity.this);
                     } else {
                         //write error to log as a warning
-                        Log.w(LOG_TAG, "HTTP status code: " + response.code());
+                        Timber.w("HTTP status code: %s", response.code());
                     }
                 }
 
                 @Override
                 public void onFailure(Call<List<Recipe>> call, Throwable t) {
                     //write error to log
-                    Log.e(LOG_TAG, t.toString());
+                    Timber.e(t.toString());
                 }
             });
         } else {
@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         }
     }
 
+    //build the adapter and with it the RecyclerView to display the data.
     private void setAdapter(Context ctxt, ArrayList<Recipe> recipeList,
                             RecipeCardAdapter.RecipeClickHandler clicker) {
         //set up adapter and RecyclerView.
@@ -113,16 +114,23 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         recipeCardAdapter.notifyDataSetChanged();
     }
 
+    /** Start DetailActivity with recipe selected
+     *
+     * @param selectedRecipe Is the selected recipe to be passed to the activity
+     */
     @Override
     public void onClick(Recipe selectedRecipe) {
         Intent openDetailActivity = new Intent(this, DetailActivity.class);
         openDetailActivity.putExtra(SELECTED_RECIPE, selectedRecipe);
-        Log.v(LOG_TAG, "ingredients: " + selectedRecipe.getIngredients().size());
+        Timber.v("ingredients: %s", selectedRecipe.getIngredients().size());
 
         startActivity(openDetailActivity);
-
     }
 
+    /** Keep hold of the data
+     *
+     * @param outState is the bundle which holds the data for the activity to reuse
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList(RECIPE_KEY, recipeList);
