@@ -26,10 +26,6 @@ public class OverviewFragment extends Fragment {
 
     private static final String LOG_TAG = DetailActivity.class.getSimpleName();
 
-    public void setSelectedRecipe(Recipe selectedRecipe) {
-        this.selectedRecipe = selectedRecipe;
-    }
-
     Recipe selectedRecipe;
 
     // lists for the recipe in question.
@@ -47,21 +43,16 @@ public class OverviewFragment extends Fragment {
         //required empty constructor
     }
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View root = inflater.inflate(R.layout.overview_fragment, container, false);
+        View root = inflater.inflate(R.layout.overview_fragment, container, false);
 
-        Log.v(LOG_TAG, "selected recipe: "+ selectedRecipe);
+        Log.v(LOG_TAG, "selected recipe: " + selectedRecipe); //TODO: returns null!
 
         //instantiate lists and retrieve the provided information for each.
         ingredientsList = new ArrayList<>();
-        List<Recipe.Ingredients> ingredients = selectedRecipe.getIngredients(); //TODO: list remains empty?!
-        ingredientsList.addAll(ingredients);
-
         stepsList = new ArrayList<>();
-        List<Recipe.Steps> steps = selectedRecipe.getSteps(); //TODO: list remains empty?!
-        stepsList.addAll(steps);
+
 
 //        //Setup Ingredient adapter
 //        ingredientAdapter = new IngredientAdapter(getActivity(), ingredientsList);
@@ -69,5 +60,24 @@ public class OverviewFragment extends Fragment {
 //        ingredientRv.setLayoutManager(new GridLayoutManager(getActivity(), 2));
 //        ingredientAdapter.notifyDataSetChanged();
         return root;
+    }
+
+    public void setSelectedRecipe(Recipe selectedRecipe) {
+        this.selectedRecipe = selectedRecipe;
+
+        List<Recipe.Ingredients> ingredients = selectedRecipe.getIngredients(); //TODO: list remains empty?!
+        if (ingredients != null) {
+            ingredientsList.addAll(ingredients);
+        } else {
+            //TODO: Handle empty list
+        }
+
+        List<Recipe.Steps> steps = selectedRecipe.getSteps(); //TODO: list remains empty?!
+        if(steps != null) {
+            stepsList.addAll(steps);
+        } else {
+            //TODO: Handle empty list
+        }
+
     }
 }

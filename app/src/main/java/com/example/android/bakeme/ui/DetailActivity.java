@@ -14,6 +14,7 @@ public class DetailActivity extends AppCompatActivity {
     private static final String LOG_TAG = DetailActivity.class.getSimpleName();
 
     Recipe selectedRecipe;
+    OverviewFragment overviewFrag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +30,7 @@ public class DetailActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle(selectedRecipe.getName());
 
-        OverviewFragment overviewFrag = new OverviewFragment();
+        overviewFrag = new OverviewFragment();
         overviewFrag.setSelectedRecipe(selectedRecipe);
     }
 }
-
