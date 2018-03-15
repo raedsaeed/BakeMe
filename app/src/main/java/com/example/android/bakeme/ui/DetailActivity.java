@@ -1,6 +1,5 @@
 package com.example.android.bakeme.ui;
 
-import android.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -15,8 +14,6 @@ public class DetailActivity extends AppCompatActivity {
     private static final String LOG_TAG = DetailActivity.class.getSimpleName();
 
     Recipe selectedRecipe;
-    public static String RECIPE_BUNDLE = "recipe_bundle";
-    FragmentManager fragMan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,14 +29,8 @@ public class DetailActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle(selectedRecipe.getName());
 
-        Bundle recipeBundle = new Bundle();
-        recipeBundle.putParcelable(RECIPE_BUNDLE, recipeBundle);
-
         OverviewFragment overviewFrag = new OverviewFragment();
-        overviewFrag.setArguments(recipeBundle);
-
-//        fragMan = getSupportFragmentManager();
-//        fragMan.beginTransaction().add(R.id.ingredient_rv, overviewFrag).commit();
+        overviewFrag.setSelectedRecipe(selectedRecipe);
     }
 }
 

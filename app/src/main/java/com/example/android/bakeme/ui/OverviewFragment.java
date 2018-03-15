@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,10 @@ import butterknife.BindView;
 public class OverviewFragment extends Fragment {
 
     private static final String LOG_TAG = DetailActivity.class.getSimpleName();
+
+    public void setSelectedRecipe(Recipe selectedRecipe) {
+        this.selectedRecipe = selectedRecipe;
+    }
 
     Recipe selectedRecipe;
 
@@ -47,8 +52,7 @@ public class OverviewFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.overview_fragment, container, false);
 
-        Bundle recipeBundle = new Bundle();
-        selectedRecipe = recipeBundle.getParcelable(DetailActivity.RECIPE_BUNDLE);
+        Log.v(LOG_TAG, "selected recipe: "+ selectedRecipe);
 
         //instantiate lists and retrieve the provided information for each.
         ingredientsList = new ArrayList<>();
