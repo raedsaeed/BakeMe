@@ -49,7 +49,7 @@ public class OverviewFragment extends Fragment {
         //Setup Ingredient adapter
         if (ingredientsList != null) {
             ingredientAdapter = new IngredientAdapter(getActivity(), ingredientsList);
-            ingredientRv.setAdapter(ingredientAdapter);
+            ingredientRv.setAdapter(ingredientAdapter); //TODO: in debugger – step over causes error here
             ingredientRv.setLayoutManager(new GridLayoutManager(getActivity(), 2));
             ingredientAdapter.notifyDataSetChanged();
         }

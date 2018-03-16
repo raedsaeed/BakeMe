@@ -43,15 +43,14 @@ public class DetailActivity extends AppCompatActivity {
 
         List<Recipe.Ingredients> ingredients = selectedRecipe.getIngredients();
         if (ingredients != null) {
-            ingredientsList.addAll(ingredients); //TODO: array is null yet list has contents
-            Timber.v("ingredients: %s", ingredientsList);
+            ingredientsList.addAll(ingredients);
         } else {
             //TODO: Handle empty list
         }
 
         List<Recipe.Steps> steps = selectedRecipe.getSteps();
         if(steps != null) {
-            stepsList.addAll(steps); //TODO: array is null yet list has contents
+            stepsList.addAll(steps);
         } else {
             //TODO: Handle empty list
         }
@@ -64,5 +63,4 @@ public class DetailActivity extends AppCompatActivity {
 
         fragMan.beginTransaction().replace(R.id.detail_fragment_container, overviewFrag).commit();
     }
-
 }
