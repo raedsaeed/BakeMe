@@ -33,7 +33,7 @@ public class StepAdapter
     @Override
     public StepViewHolder onCreateViewHolder(ViewGroup parent,
                                              int viewType) {
-        View root = LayoutInflater.from(ctxt).inflate(R.layout.recipe_text, parent,
+        View root = LayoutInflater.from(ctxt).inflate(R.layout.recipe_step_shortdescrip, parent,
                 false);
         root.setFocusable(true);
         return new StepViewHolder(root);
@@ -43,7 +43,13 @@ public class StepAdapter
     public void onBindViewHolder(StepViewHolder holder, int position) {
         Steps currentItem = this.stepsList.get(position);
 
-        holder.recipeTextTv.setText(currentItem.toString());
+        if (currentItem.getId() == 0) { // don't show step "0" number
+            holder.stepNoTv.setVisibility(View.INVISIBLE);
+        } else {
+            holder.stepNoTv.setText(String.valueOf(currentItem.getId()));
+        }
+
+        holder.recipeTextTv.setText(currentItem.getShortdescription());
 
     }
 
@@ -57,6 +63,8 @@ public class StepAdapter
 
         @BindView(R.id.recipe_text_tv)
         TextView recipeTextTv;
+        @BindView(R.id.stepNo_tv)
+        TextView stepNoTv;
 
         public StepViewHolder(View itemView) {
             super(itemView);

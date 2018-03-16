@@ -7,7 +7,9 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import retrofit2.Retrofit;
 
@@ -288,7 +290,43 @@ public class Recipe implements Parcelable {
 
         @Override
         public String toString() {
-            return "– " + quantity + " " + measure +  " " + ingredient;
+            String measureDisplay = getMeasurementString();
+            String quantityDisplay = getQuantityString();
+
+            return "\u2022 " + quantityDisplay + " " + measureDisplay + " " + ingredient;
+        }
+
+        /** remove ".0" where necessary
+         *
+         * @return a readable number ready for display
+         */
+        private String getQuantityString() {
+            String quantityValue = String.valueOf(quantity);
+            String quantityDisplay = null;
+            if (quantityValue.endsWith(".0")) {
+                StringTokenizer quantitySplit = new StringTokenizer(quantityValue, ".");
+                quantityDisplay = quantitySplit.nextToken();
+            } else {
+                quantityDisplay = quantityValue;
+            }
+            return quantityDisplay;
+        }
+
+        /** retrieve String to display readable measurement
+         *
+         * @return String ready to display
+         */
+        private String getMeasurementString() {
+            HashMap<String, String> measurements = new HashMap<>();
+            measurements.put("CUP", "cup");
+            measurements.put("TBLSP", "tbsp");
+            measurements.put("TSP", "tsp");
+            measurements.put("K", "kg");
+            measurements.put("G", "g");
+            measurements.put("OZ", "oz");
+            measurements.put("UNIT", "");
+
+            return measurements.get(measure);
         }
     }
 }

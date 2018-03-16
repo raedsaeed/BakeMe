@@ -9,4 +9,8 @@
     <string name="navigate_back_contDescrip">Navigate back</string>
     <string name="recipe_card_image_contDescrip">Recipe card image</string>
     <string name="no_internet">There is currently not internet connection.</string>
+    <string name="ingredients_label">Ingredients:</string>
+    <string name="overview_of_method_label">Overview of method:</string>
+    <string name="bullet_point_ingredients">bullet point</string>
+    <string name="go_to_step_iv">go to step</string>
 </resources>

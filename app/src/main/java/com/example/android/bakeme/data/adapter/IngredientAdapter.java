@@ -44,7 +44,6 @@ public class IngredientAdapter
         Ingredients currentItem = this.ingredientsList.get(position);
 
         holder.ingredientTv.setText(currentItem.toString());
-
     }
 
     @Override
@@ -53,7 +52,7 @@ public class IngredientAdapter
         else return ingredientsList.size();
     }
 
-    public class IngredientViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class IngredientViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.ingredient_tv)
         TextView ingredientTv;
@@ -61,12 +60,6 @@ public class IngredientAdapter
         public IngredientViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-
         }
     }
 }

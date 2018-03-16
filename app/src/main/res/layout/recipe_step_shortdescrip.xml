@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/recipe_text_tv"
+        android:layout_width="0dp"
+        android:layout_height="16dp"
+        android:layout_marginEnd="@dimen/margin"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/stepNo_tv"
+        app:layout_constraintEnd_toStartOf="@+id/goToStep_iv"
+        app:layout_constraintStart_toEndOf="@+id/stepNo_tv"
+        app:layout_constraintTop_toTopOf="@+id/stepNo_tv"
+        tools:text="short step description" />
+
+    <ImageView
+        android:id="@+id/goToStep_iv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/margin"
+        app:layout_constraintBottom_toBottomOf="@+id/recipe_text_tv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/recipe_text_tv"
+        app:srcCompat="@android:drawable/ic_menu_view"
+        android:tint="@color/colorAccent"
+        android:layout_marginRight="@dimen/margin"
+        android:contentDescription="@string/go_to_step_iv" />
+
+    <TextView
+        android:id="@+id/stepNo_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin"
+        android:layout_marginTop="@dimen/margin"
+        tools:text="1."
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="@dimen/margin" />
+
+</android.support.constraint.ConstraintLayout>
