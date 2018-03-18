@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/media_holder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/darker_gray"
@@ -67,7 +68,6 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="0dp"
             android:layout_height="32dp"
-            android:layout_marginBottom="@dimen/margin"
             android:layout_marginEnd="@dimen/margin"
             android:layout_marginStart="@dimen/margin"
             android:layout_weight="1"

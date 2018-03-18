@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.android.bakeme.R;
+import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Steps;
 
 import java.util.ArrayList;
@@ -22,12 +23,24 @@ import butterknife.ButterKnife;
 public class StepAdapter
         extends RecyclerView.Adapter<StepAdapter.StepViewHolder> {
 
+    final private StepAdapter.StepClickHandler stepClicker;
+
+    //setdata frees up the constructor to be used in DetailActivity.
+    // Based on: http://www.i-programmer.info/professional-programmer/accreditation/10908-insiders-guide-to-udacity-android-developer-nanodegree-part-3-the-making-of-baking-app.html?start=1
+    public void setData(Context ctxt, ArrayList<Steps> stepsList) {
+        this.ctxt = ctxt;
+        this.stepsList = stepsList;
+    }
+
+    public interface StepClickHandler {
+        void onClick(Steps step);
+    }
+
     Context ctxt;
     ArrayList<Steps> stepsList;
 
-    public StepAdapter(Context ctxt, ArrayList<Steps> stepsList) {
-        this.ctxt = ctxt;
-        this.stepsList = stepsList;
+    public StepAdapter(StepClickHandler stepClicker) {
+        this.stepClicker = stepClicker;
     }
 
     @Override
@@ -50,7 +63,6 @@ public class StepAdapter
         }
 
         holder.recipeTextTv.setText(currentItem.getShortdescription());
-
     }
 
     @Override
@@ -59,7 +71,7 @@ public class StepAdapter
         else return stepsList.size();
     }
 
-    public class StepViewHolder extends RecyclerView.ViewHolder {
+    public class StepViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         @BindView(R.id.recipe_text_tv)
         TextView recipeTextTv;
@@ -69,6 +81,13 @@ public class StepAdapter
         public StepViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            Steps currentStep = stepsList.get(getAdapterPosition());
+            stepClicker.onClick(currentStep);
         }
     }
 }

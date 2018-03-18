@@ -7,25 +7,42 @@ import android.os.Bundle;
 
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
+import com.example.android.bakeme.data.Recipe.Steps;
+import com.example.android.bakeme.data.adapter.StepAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.ButterKnife;
 import timber.log.Timber;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity implements StepAdapter.StepClickHandler {
 
     Recipe selectedRecipe;
     OverviewFragment overviewFrag;
+    MethodFragment methodFrag;
     FragmentManager fragMan;
 
+    public static final String SELECTED_STEP = "selected_step";
+    public static final String STEP_ARRAY_SIZE = "number of steps";
+
+    public static boolean twoPane;
+
     static ArrayList<Recipe.Ingredients> ingredientsList;
-    static ArrayList<Recipe.Steps> stepsList;
+    static ArrayList<Steps> stepsList;
+
+    private String RECIPE_DETAIL = "detail recipe stack";
+    private String RECIPE_METHOD = "method recipe stack";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        twoPane = false; //TODO: Implement phone <-> tablet recognition
+
+        Timber.plant(new Timber.DebugTree());
+        ButterKnife.bind(this);
 
         Intent recipeIntent = getIntent();
         Timber.v("recipe Intent: %s", recipeIntent);
@@ -42,25 +59,32 @@ public class DetailActivity extends AppCompatActivity {
         stepsList = new ArrayList<>();
 
         List<Recipe.Ingredients> ingredients = selectedRecipe.getIngredients();
-        if (ingredients != null) {
-            ingredientsList.addAll(ingredients);
-        } else {
-            //TODO: Handle empty list
-        }
+        ingredientsList.addAll(ingredients);
 
-        List<Recipe.Steps> steps = selectedRecipe.getSteps();
-        if(steps != null) {
-            stepsList.addAll(steps);
-        } else {
-            //TODO: Handle empty list
-        }
+        List<Steps> steps = selectedRecipe.getSteps();
+        stepsList.addAll(steps);
 
         fragMan = getSupportFragmentManager();
 
-        overviewFrag =  new OverviewFragment();
+        overviewFrag = new OverviewFragment();
         overviewFrag.setIngredientsList(ingredientsList);
         overviewFrag.setStepsList(stepsList);
 
-        fragMan.beginTransaction().replace(R.id.detail_fragment_container, overviewFrag).commit();
+        fragMan.beginTransaction().replace(R.id.detail_fragment_container, overviewFrag)
+                .addToBackStack(RECIPE_DETAIL).commit();
+    }
+
+    @Override
+    public void onClick(Steps step) {
+        if (twoPane) {
+            // tablet layout communication
+        } else {
+            methodFrag = new MethodFragment();
+            methodFrag.setStep(step);
+            methodFrag.setRecipe(selectedRecipe);
+            methodFrag.setStepsList(stepsList);
+            fragMan.beginTransaction().replace(R.id.detail_fragment_container, methodFrag)
+                    .addToBackStack(RECIPE_METHOD).commit();
+        }
     }
 }

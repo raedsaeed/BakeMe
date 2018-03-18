@@ -13,4 +13,6 @@
     <string name="overview_of_method_label">Overview of method:</string>
     <string name="bullet_point_ingredients">bullet point</string>
     <string name="go_to_step_iv">go to step</string>
+    <string name="no_detail_step_available">No details have been provided for this step.</string>
+    <string name="thumbnail_of_video">Thumbnail of video</string>
 </resources>

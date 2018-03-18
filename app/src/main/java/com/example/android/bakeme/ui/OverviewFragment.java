@@ -2,9 +2,9 @@ package com.example.android.bakeme.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,15 +39,18 @@ public class OverviewFragment extends Fragment {
     //views
     @BindView(R.id.ingredient_rv)
     RecyclerView ingredientRv;
-    @BindView(R.id.recipe_steps_rv) RecyclerView stepRv;
+    @BindView(R.id.recipe_steps_rv)
+    RecyclerView stepRv;
 
     public OverviewFragment() {
         //required empty constructor
     }
 
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.overview_fragment, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View root = inflater.inflate(R.layout.fragment_overview, container, false);
         ButterKnife.bind(this, root);
 
         Timber.v("ingredients: %s", ingredientsList);
@@ -56,16 +59,20 @@ public class OverviewFragment extends Fragment {
         if (ingredientsList != null) {
             ingredientAdapter = new IngredientAdapter(getActivity(), ingredientsList);
             ingredientRv.setAdapter(ingredientAdapter);
-            ingredientRv.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+            ingredientRv.setLayoutManager(new StaggeredGridLayoutManager(2,
+                    StaggeredGridLayoutManager.VERTICAL));
             ingredientAdapter.notifyDataSetChanged();
         }
 
-        if(stepsList != null) {
-            stepAdapter = new StepAdapter(getActivity(), stepsList);
+        if (stepsList != null) {
+            stepAdapter = new StepAdapter((DetailActivity) getActivity());
+            stepAdapter.setData(getContext(), stepsList);
             stepRv.setAdapter(stepAdapter);
             stepRv.setLayoutManager(new LinearLayoutManager(getActivity()));
             stepAdapter.notifyDataSetChanged();
         }
+
+
         return root;
     }
 
@@ -76,4 +83,5 @@ public class OverviewFragment extends Fragment {
     public void setStepsList(ArrayList<Recipe.Steps> stepsList) {
         this.stepsList = stepsList;
     }
+
 }
