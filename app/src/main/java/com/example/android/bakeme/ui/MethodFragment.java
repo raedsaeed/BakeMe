@@ -185,7 +185,7 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
     private void initializeVideoSession() {
 
         // Create a MediaSessionCompat for the videos to be viewed.
-        videoSession = new MediaSessionCompat(getActivity(), TAG);
+        videoSession = new MediaSessionCompat(getActivity(), TAG); //TODO: crashes on this line in Genymotion emulator (API 16)
 
         // Enable mediaButton ~ and transportControls callbacks
         videoSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
