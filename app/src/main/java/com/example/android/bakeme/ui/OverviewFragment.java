@@ -26,8 +26,6 @@ import timber.log.Timber;
  */
 public class OverviewFragment extends Fragment {
 
-    Recipe selectedRecipe;
-
     // lists for the recipe in question.
     ArrayList<Recipe.Ingredients> ingredientsList;
     ArrayList<Recipe.Steps> stepsList;
@@ -74,6 +72,13 @@ public class OverviewFragment extends Fragment {
 
 
         return root;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(DetailActivity.STEP_LIST, stepsList);
+        outState.putParcelableArrayList(DetailActivity.INGREDIENT_LIST, ingredientsList);
+        super.onSaveInstanceState(outState);
     }
 
     public void setIngredientsList(ArrayList<Recipe.Ingredients> ingredientsList) {

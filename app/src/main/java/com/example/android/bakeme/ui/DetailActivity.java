@@ -33,11 +33,26 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
 
     private String RECIPE_DETAIL = "detail recipe stack";
     private String RECIPE_METHOD = "method recipe stack";
+    public static final String INGREDIENT_LIST= "ingredient_list";
+    public static final String STEP_LIST = "step_list";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(MainActivity.SELECTED_RECIPE)) {
+                selectedRecipe = savedInstanceState.getParcelable(MainActivity.SELECTED_RECIPE);
+            }
+            if (savedInstanceState.containsKey(INGREDIENT_LIST)) {
+                ingredientsList = savedInstanceState.getParcelableArrayList(INGREDIENT_LIST);
+            }
+            if ( savedInstanceState.containsKey(STEP_LIST)) {
+                stepsList = savedInstanceState.getParcelableArrayList(STEP_LIST);
+            }
+        }
 
         twoPane = false; //TODO: Implement phone <-> tablet recognition
 
@@ -72,6 +87,14 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
 
         fragMan.beginTransaction().replace(R.id.detail_fragment_container, overviewFrag)
                 .addToBackStack(RECIPE_DETAIL).commit();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(MainActivity.SELECTED_RECIPE, selectedRecipe);
+        outState.putParcelableArrayList(INGREDIENT_LIST, ingredientsList);
+        outState.putParcelableArrayList(STEP_LIST, stepsList);
+        super.onSaveInstanceState(outState);
     }
 
     @Override

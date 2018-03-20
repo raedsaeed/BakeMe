@@ -3,6 +3,7 @@ package com.example.android.bakeme.ui;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -78,6 +79,13 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
     Steps step;
     ArrayList<Steps> stepsList;
 
+    // check whether device is landscape mode (single pane)
+    boolean landMode;
+
+    //keys to save instance state
+    private String STEP_LIST = "step_list";
+    private String SELECTED_STEP = "selected_step";
+
     public void setStepsList(ArrayList<Steps> stepsList) {
         this.stepsList = stepsList;
     }
@@ -93,12 +101,23 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
     public MethodFragment() {
     }
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_method, container, false);
         ButterKnife.bind(this, root);
+
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(STEP_LIST)) {
+                stepsList = savedInstanceState.getParcelableArrayList(STEP_LIST);
+            }
+            if (savedInstanceState.containsKey(SELECTED_STEP)) {
+                step = savedInstanceState.getParcelable(SELECTED_STEP);
+            }
+            if (savedInstanceState.containsKey(MainActivity.SELECTED_RECIPE)) {
+                recipe = savedInstanceState.getParcelable(MainActivity.SELECTED_RECIPE);
+            }
+        }
 
         handler = new Handler();
 
@@ -118,39 +137,49 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
         // Initialize the player.
         initializePlayer();
 
-        updateNavButtons();
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            updateNavButtons();
 
-        updateStepText();
+            updateStepText();
 
-        //users wants to go one step back
-        navPrevBt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int stepId = step.getId() - 1;
-                Steps prevStep = recipe.getSteps().get(stepId);
-                setStep(prevStep);
-                updateStepText();
-                // Stop previous playback, prepare and play new
-                startChosenVideo();
-                updateNavButtons();
-            }
-        });
+            //users wants to go one step back
+            navPrevBt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int stepId = step.getId() - 1;
+                    Steps prevStep = recipe.getSteps().get(stepId);
+                    setStep(prevStep);
+                    updateStepText();
+                    // Stop previous playback, prepare and play new
+                    startChosenVideo();
+                    updateNavButtons();
+                }
+            });
 
-        //user wants to go one step forward
-        navNextBt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int stepId = step.getId() + 1;
-                Steps nextStep = recipe.getSteps().get(stepId);
-                setStep(nextStep);
-                updateStepText();
-                // Stop previous playback, prepare and play new
-                startChosenVideo();
-                updateNavButtons();
-            }
-        });
+            //user wants to go one step forward
+            navNextBt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int stepId = step.getId() + 1;
+                    Steps nextStep = recipe.getSteps().get(stepId);
+                    setStep(nextStep);
+                    updateStepText();
+                    // Stop previous playback, prepare and play new
+                    startChosenVideo();
+                    updateNavButtons();
+                }
+            });
+        }
 
         return root;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(STEP_LIST, stepsList);
+        outState.putParcelable(MainActivity.SELECTED_RECIPE, recipe);
+        outState.putParcelable(SELECTED_STEP, step);
+        super.onSaveInstanceState(outState);
     }
 
     private void startChosenVideo() {
