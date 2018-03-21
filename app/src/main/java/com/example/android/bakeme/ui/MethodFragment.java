@@ -8,17 +8,19 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
@@ -63,7 +65,7 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
     @BindView(R.id.recipe_step_tv)
     TextView recipeStep;
 
-    //For the Videoplayer
+    //For the Video player
     @BindView(R.id.exo_play)
     SimpleExoPlayerView exoPlayerView;
     @BindView(R.id.video_thumbnail_iv)
@@ -80,7 +82,7 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
     ArrayList<Steps> stepsList;
 
     // check whether device is landscape mode (single pane)
-    boolean landMode;
+    boolean portMode;
 
     //keys to save instance state
     private String STEP_LIST = "step_list";
@@ -106,6 +108,10 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_method, container, false);
         ButterKnife.bind(this, root);
+
+        portMode = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+
+        //TODO: orientation change goes back to overviewfragment
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(STEP_LIST)) {
@@ -137,7 +143,7 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
         // Initialize the player.
         initializePlayer();
 
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+        if (portMode) {
             updateNavButtons();
 
             updateStepText();
@@ -146,13 +152,7 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
             navPrevBt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int stepId = step.getId() - 1;
-                    Steps prevStep = recipe.getSteps().get(stepId);
-                    setStep(prevStep);
-                    updateStepText();
-                    // Stop previous playback, prepare and play new
-                    startChosenVideo();
-                    updateNavButtons();
+                    goToNextStep();
                 }
             });
 
@@ -160,18 +160,53 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
             navNextBt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int stepId = step.getId() + 1;
-                    Steps nextStep = recipe.getSteps().get(stepId);
-                    setStep(nextStep);
-                    updateStepText();
-                    // Stop previous playback, prepare and play new
-                    startChosenVideo();
-                    updateNavButtons();
+                    goToPrevStep();
                 }
             });
+        } else {
+            Toast.makeText(getActivity(), R.string.landscape_instruction, Toast.LENGTH_SHORT).show();
+            navNextBt.setVisibility(View.GONE);
+            navPrevBt.setVisibility(View.GONE);
+            recipeStep.setVisibility(View.GONE);
         }
 
+        container.setOnTouchListener(new OnSwipeTouchListener(getActivity()) {
+            public void onSwipeLeft() {
+                goToPrevStep();
+                if (!portMode) { //to help the user stay oriented when swiping through the videos
+                    Toast.makeText(getActivity(), step.getShortdescription(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            public void onSwipeRight() {
+                goToNextStep();
+                if (!portMode) { //to help the user stay oriented when swiping through the videos
+                    Toast.makeText(getActivity(), step.getShortdescription(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         return root;
+    }
+
+    private void goToPrevStep() {
+        int stepId = step.getId() + 1;
+        Steps nextStep = recipe.getSteps().get(stepId);
+        setStep(nextStep);
+        updateStepText();
+        // Stop previous playback, prepare and play new
+        startChosenVideo();
+        updateNavButtons();
+    }
+
+    private void goToNextStep() {
+        int stepId = step.getId() - 1;
+        Steps prevStep = recipe.getSteps().get(stepId);
+        setStep(prevStep);
+        updateStepText();
+        // Stop previous playback, prepare and play new
+        startChosenVideo();
+        updateNavButtons();
     }
 
     @Override
@@ -363,5 +398,60 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
             navPrevBt.setVisibility(View.VISIBLE);
             navNextBt.setVisibility(View.VISIBLE);
         }
+    }
+
+    //track swipe gestures for quick&easy navigation. See: https://stackoverflow.com/a/12938787
+    private class OnSwipeTouchListener implements View.OnTouchListener {
+
+        private final GestureDetector gestureDetector;
+
+        OnSwipeTouchListener(Context ctx) {
+            gestureDetector = new GestureDetector(ctx, new GestureListener());
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            return gestureDetector.onTouchEvent(event);
+        }
+
+        private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+            private static final int THRESHOLD = 100;
+            private static final int VELOCITY_THRESHOLD = 100;
+
+            @Override
+            public boolean onDown(MotionEvent e) { // not needed
+                return true;
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                boolean result = false;
+                try {
+                    float diffY = e2.getY() - e1.getY();
+                    float diffX = e2.getX() - e1.getX();
+                    if (Math.abs(diffX) > Math.abs(diffY)) {
+                        if (Math.abs(diffX) > THRESHOLD && Math.abs(velocityX) > VELOCITY_THRESHOLD) {
+                            if (diffX > 0) {
+                                onSwipeRight();
+                            } else {
+                                onSwipeLeft();
+                            }
+                            result = true;
+                        }
+                    }
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+                return result;
+            }
+        }
+
+        void onSwipeRight() {
+        }
+
+        void onSwipeLeft() {
+        }
+
     }
 }

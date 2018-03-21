@@ -35,12 +35,24 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
     private String RECIPE_METHOD = "method recipe stack";
     public static final String INGREDIENT_LIST= "ingredient_list";
     public static final String STEP_LIST = "step_list";
+    private String OVERVIEW_TAG = "overview_fragment_tag";
+    private String METHOD_TAG = "method_fragment_tag";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        twoPane = false; //TODO: Implement phone <-> tablet recognition
+
+        Timber.plant(new Timber.DebugTree());
+        ButterKnife.bind(this);
+
+        //instantiate lists ready to retrieve the provided information for each.
+        ingredientsList = new ArrayList<>();
+        stepsList = new ArrayList<>();
+
+        fragMan = getSupportFragmentManager();
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(MainActivity.SELECTED_RECIPE)) {
@@ -52,40 +64,37 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
             if ( savedInstanceState.containsKey(STEP_LIST)) {
                 stepsList = savedInstanceState.getParcelableArrayList(STEP_LIST);
             }
-        }
 
-        twoPane = false; //TODO: Implement phone <-> tablet recognition
+            overviewFrag = (OverviewFragment) fragMan.findFragmentByTag(OVERVIEW_TAG);
+            methodFrag = (MethodFragment) fragMan.findFragmentByTag(METHOD_TAG);
 
-        Timber.plant(new Timber.DebugTree());
-        ButterKnife.bind(this);
+            fragMan.popBackStack();
 
-        Intent recipeIntent = getIntent();
-        Timber.v("recipe Intent: %s", recipeIntent);
-        if (recipeIntent != null && recipeIntent.hasExtra(MainActivity.SELECTED_RECIPE)) {
-            selectedRecipe = recipeIntent.getParcelableExtra(MainActivity.SELECTED_RECIPE);
-            Timber.v("ingredients test: %s", selectedRecipe.getIngredients());
+        } else {
+            Intent recipeIntent = getIntent();
+            Timber.v("recipe Intent: %s", recipeIntent);
+            if (recipeIntent != null && recipeIntent.hasExtra(MainActivity.SELECTED_RECIPE)) {
+                selectedRecipe = recipeIntent.getParcelableExtra(MainActivity.SELECTED_RECIPE);
+                Timber.v("ingredients test: %s", selectedRecipe.getIngredients());
+            }
+
+            List<Recipe.Ingredients> ingredients = selectedRecipe.getIngredients();
+            ingredientsList.addAll(ingredients);
+
+            List<Steps> steps = selectedRecipe.getSteps();
+            stepsList.addAll(steps);
+
+            overviewFrag = new OverviewFragment();
+            methodFrag = new MethodFragment();
         }
 
         getSupportActionBar().setTitle(selectedRecipe.getName());
-
-
-        //instantiate lists and retrieve the provided information for each.
-        ingredientsList = new ArrayList<>();
-        stepsList = new ArrayList<>();
-
-        List<Recipe.Ingredients> ingredients = selectedRecipe.getIngredients();
-        ingredientsList.addAll(ingredients);
-
-        List<Steps> steps = selectedRecipe.getSteps();
-        stepsList.addAll(steps);
-
-        fragMan = getSupportFragmentManager();
 
         overviewFrag = new OverviewFragment();
         overviewFrag.setIngredientsList(ingredientsList);
         overviewFrag.setStepsList(stepsList);
 
-        fragMan.beginTransaction().replace(R.id.detail_fragment_container, overviewFrag)
+        fragMan.beginTransaction().replace(R.id.detail_fragment_container, overviewFrag, OVERVIEW_TAG)
                 .addToBackStack(RECIPE_DETAIL).commit();
     }
 
@@ -102,11 +111,11 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
         if (twoPane) {
             // tablet layout communication
         } else {
-            methodFrag = new MethodFragment();
+
             methodFrag.setStep(step);
             methodFrag.setRecipe(selectedRecipe);
             methodFrag.setStepsList(stepsList);
-            fragMan.beginTransaction().replace(R.id.detail_fragment_container, methodFrag)
+            fragMan.beginTransaction().replace(R.id.detail_fragment_container, methodFrag, METHOD_TAG)
                     .addToBackStack(RECIPE_METHOD).commit();
         }
     }
