@@ -70,14 +70,13 @@ public class OverviewFragment extends Fragment {
             stepAdapter.notifyDataSetChanged();
         }
 
-
         return root;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList(DetailActivity.STEP_LIST, stepsList);
-        outState.putParcelableArrayList(DetailActivity.INGREDIENT_LIST, ingredientsList);
+        outState.putParcelableArrayList(String.valueOf(R.string.STEP_LIST), stepsList);
+        outState.putParcelableArrayList(String.valueOf(R.string.INGREDIENT_LIST), ingredientsList);
         super.onSaveInstanceState(outState);
     }
 

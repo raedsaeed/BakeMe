@@ -5,14 +5,29 @@
     <string name="pause_button_contDescrip">Media player pause button</string>
     <string name="navigate_back"><![CDATA[<<]]></string>
     <string name="navigate_forward"><![CDATA[>>]]></string>
-    <string name="navigate_forward_contDescrip">navigate to next step</string>
-    <string name="navigate_back_contDescrip">Navigate back</string>
-    <string name="recipe_card_image_contDescrip">Recipe card image</string>
-    <string name="no_internet">There is currently not internet connection.</string>
     <string name="ingredients_label">Ingredients:</string>
     <string name="overview_of_method_label">Overview of method:</string>
     <string name="go_to_step_iv">go to step</string>
-    <string name="no_detail_step_available">No details have been provided for this step.</string>
     <string name="thumbnail_of_video">Thumbnail of video</string>
+    <string name="tablet_tag">sw600dp</string>
+
+    <!--Content Descriptions -->
+    <string name="navigate_forward_contDescrip">navigate to next step</string>
+    <string name="navigate_back_contDescrip">Navigate back</string>
+    <string name="recipe_card_image_contDescrip">Recipe card image</string>
+
+    <!-- toasts and other messages -->
     <string name="landscape_instruction"> &lt; previous step | swipe right &gt;</string>
+    <string name="swiper_no_prev_toast">This is the first step for this recipe.</string>
+    <string name="swiper_last_step_toast">This is the last step of this recipe.</string>
+    <string name="no_internet">There is currently not internet connection.</string>
+    <string name="no_detail_step_available">No details have been provided for this step.</string>
+
+    <!-- tags for intents, bundles and persistence -->
+    <string name="INGREDIENT_LIST" translatable="false">ingredient list</string>
+    <string name="STEP_LIST" translatable="false">step list</string>
+    <string name="RECIPE_BUNDLE" translatable="false">recipe bundle</string>
+    <string name="SELECTED_STEP" translatable="false">selected step</string>
+    <string name="SELECTED_RECIPE" translatable="false">selected_recipe</string>
+    <string name="RECIPE_KEY" translatable="false">recipe_key</string>
 </resources>

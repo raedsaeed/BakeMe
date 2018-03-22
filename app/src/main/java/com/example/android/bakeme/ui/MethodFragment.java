@@ -84,9 +84,7 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
     // check whether device is landscape mode (single pane)
     boolean portMode;
 
-    //keys to save instance state
-    private String STEP_LIST = "step_list";
-    private String SELECTED_STEP = "selected_step";
+    boolean twoPane;
 
     public void setStepsList(ArrayList<Steps> stepsList) {
         this.stepsList = stepsList;
@@ -100,6 +98,10 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
         this.recipe = recipe;
     }
 
+    public void setTwoPane(boolean twoPane) {
+        this.twoPane = twoPane;
+    }
+
     public MethodFragment() {
     }
 
@@ -109,19 +111,20 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
         View root = inflater.inflate(R.layout.fragment_method, container, false);
         ButterKnife.bind(this, root);
 
-        portMode = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+        portMode = getResources().getConfiguration().orientation == Configuration
+                .ORIENTATION_PORTRAIT;
 
         //TODO: orientation change goes back to overviewfragment
 
         if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(STEP_LIST)) {
-                stepsList = savedInstanceState.getParcelableArrayList(STEP_LIST);
+            if (savedInstanceState.containsKey(String.valueOf(R.string.STEP_LIST))) {
+                stepsList = savedInstanceState.getParcelableArrayList(String.valueOf(R.string.STEP_LIST));
             }
-            if (savedInstanceState.containsKey(SELECTED_STEP)) {
-                step = savedInstanceState.getParcelable(SELECTED_STEP);
+            if (savedInstanceState.containsKey(String.valueOf(R.string.SELECTED_STEP))) {
+                step = savedInstanceState.getParcelable(String.valueOf(R.string.SELECTED_STEP));
             }
-            if (savedInstanceState.containsKey(MainActivity.SELECTED_RECIPE)) {
-                recipe = savedInstanceState.getParcelable(MainActivity.SELECTED_RECIPE);
+            if (savedInstanceState.containsKey(String.valueOf(R.string.SELECTED_RECIPE))) {
+                recipe = savedInstanceState.getParcelable(String.valueOf(R.string.SELECTED_RECIPE));
             }
         }
 
@@ -144,6 +147,11 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
         initializePlayer();
 
         if (portMode) {
+
+            //ensure buttons and TextView are visible
+            navNextBt.setVisibility(View.VISIBLE);
+            navPrevBt.setVisibility(View.VISIBLE);
+            recipeStep.setVisibility(View.VISIBLE);
             updateNavButtons();
 
             updateStepText();
@@ -164,29 +172,53 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
                 }
             });
         } else {
-            Toast.makeText(getActivity(), R.string.landscape_instruction, Toast.LENGTH_SHORT).show();
-            navNextBt.setVisibility(View.GONE);
-            navPrevBt.setVisibility(View.GONE);
-            recipeStep.setVisibility(View.GONE);
+            Toast.makeText(getActivity(), R.string.landscape_instruction, Toast.LENGTH_SHORT)
+                    .show();
+            setLandMode();
         }
 
         container.setOnTouchListener(new OnSwipeTouchListener(getActivity()) {
             public void onSwipeLeft() {
-                goToPrevStep();
-                if (!portMode) { //to help the user stay oriented when swiping through the videos
-                    Toast.makeText(getActivity(), step.getShortdescription(), Toast.LENGTH_SHORT).show();
+                if (step.getId() == 0) {
+                    Toast.makeText(getActivity(), R.string.swiper_no_prev_toast, Toast.LENGTH_SHORT)
+                            .show();
+                } else {
+                    goToPrevStep();
+                    startChosenVideo();
+
+                    if (!portMode) { //to help the user stay oriented when swiping through the videos
+                        Toast.makeText(getActivity(), step.getShortdescription(), Toast.LENGTH_SHORT)
+                                .show();
+                        setLandMode();
+                    }
                 }
             }
 
             public void onSwipeRight() {
-                goToNextStep();
-                if (!portMode) { //to help the user stay oriented when swiping through the videos
-                    Toast.makeText(getActivity(), step.getShortdescription(), Toast.LENGTH_SHORT).show();
+                if (stepsList.size() == step.getId() + 1) {
+                    Toast.makeText(getActivity(), R.string.swiper_last_step_toast, Toast.LENGTH_SHORT)
+                            .show();
+                } else {
+                    goToNextStep();
+                    startChosenVideo();
+
+                    if (!portMode) { //to help the user stay oriented when swiping through the videos
+                        Toast.makeText(getActivity(), step.getShortdescription(), Toast.LENGTH_SHORT)
+                                .show();
+                        setLandMode();
+                    }
                 }
             }
         });
 
         return root;
+    }
+
+    // In landscape mode, ensure text and buttons remain hidden.
+    private void setLandMode() {
+        navNextBt.setVisibility(View.GONE);
+        navPrevBt.setVisibility(View.GONE);
+        recipeStep.setVisibility(View.INVISIBLE);
     }
 
     private void goToPrevStep() {
@@ -209,11 +241,23 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
         updateNavButtons();
     }
 
+    //Ensure that the previous and next button only show when there is something to navigate to
+    private void updateNavButtons() {
+        if (step.getId() == 0) {
+            navPrevBt.setVisibility(View.INVISIBLE);
+        } else if (stepsList.size() == step.getId() + 1) {
+            navNextBt.setVisibility(View.INVISIBLE);
+        } else {
+            navPrevBt.setVisibility(View.VISIBLE);
+            navNextBt.setVisibility(View.VISIBLE);
+        }
+    }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList(STEP_LIST, stepsList);
-        outState.putParcelable(MainActivity.SELECTED_RECIPE, recipe);
-        outState.putParcelable(SELECTED_STEP, step);
+        outState.putParcelableArrayList(String.valueOf(R.string.STEP_LIST), stepsList);
+        outState.putParcelable(String.valueOf(R.string.SELECTED_RECIPE), recipe);
+        outState.putParcelable(String.valueOf(R.string.SELECTED_STEP), step);
         super.onSaveInstanceState(outState);
     }
 
@@ -249,7 +293,7 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
     private void initializeVideoSession() {
 
         // Create a MediaSessionCompat for the videos to be viewed.
-        videoSession = new MediaSessionCompat(getActivity(), TAG); //TODO: crashes on this line in Genymotion emulator (API 16)
+        videoSession = new MediaSessionCompat(getActivity(), TAG);
 
         // Enable mediaButton ~ and transportControls callbacks
         videoSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
@@ -282,8 +326,6 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
             DefaultTrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
             LoadControl loadControl = new DefaultLoadControl();
 
-            //            TrackSelector trackSelect = new DefaultTrackSelector();
-//            LoadControl loader = new DefaultLoadControl();
             exoPlayer = ExoPlayerFactory.newSimpleInstance(getActivity(), trackSelector, loadControl);
             exoPlayerView.requestFocus();
             exoPlayerView.setPlayer(exoPlayer);
@@ -385,18 +427,6 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
             recipeStep.setText(step.getDescription());
         } else {
             recipeStep.setText(R.string.no_detail_step_available);
-        }
-    }
-
-    //Ensure that the previous and next button only show when there is something to navigate to
-    private void updateNavButtons() {
-        if (step.getId() == 0) {
-            navPrevBt.setVisibility(View.INVISIBLE);
-        } else if (stepsList.size() == step.getId() + 1) {
-            navNextBt.setVisibility(View.INVISIBLE);
-        } else {
-            navPrevBt.setVisibility(View.VISIBLE);
-            navNextBt.setVisibility(View.VISIBLE);
         }
     }
 

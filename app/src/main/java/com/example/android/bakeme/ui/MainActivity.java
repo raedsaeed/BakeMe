@@ -33,10 +33,6 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
     RecipeCardAdapter recipeCardAdapter;
     ArrayList<Recipe> recipeList;
 
-    //keys for storing and sending parcels
-    public static final String RECIPE_KEY = "recipe_key";
-    public static final String SELECTED_RECIPE = "selected_recipe";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,10 +40,10 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
 
         Timber.plant(new Timber.DebugTree());
 
-        if (savedInstanceState != null && savedInstanceState.containsKey(RECIPE_KEY)) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(String.valueOf(R.string.RECIPE_KEY))) {
             mainBinder.alertView.progressPb.setVisibility(View.GONE);
             mainBinder.alertView.alertTv.setVisibility(View.GONE);
-            recipeList = savedInstanceState.getParcelableArrayList(RECIPE_KEY);
+            recipeList = savedInstanceState.getParcelableArrayList(String.valueOf(R.string.RECIPE_KEY));
             if (recipeList != null) {
                 setAdapter(this, recipeList, this);
             }
@@ -121,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
     @Override
     public void onClick(Recipe selectedRecipe) {
         Intent openDetailActivity = new Intent(this, DetailActivity.class);
-        openDetailActivity.putExtra(SELECTED_RECIPE, selectedRecipe);
+        openDetailActivity.putExtra(String.valueOf(R.string.SELECTED_RECIPE), selectedRecipe);
         Timber.v("ingredients: %s", selectedRecipe.getIngredients().size());
 
         startActivity(openDetailActivity);
@@ -133,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
      */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList(RECIPE_KEY, recipeList);
+        outState.putParcelableArrayList(String.valueOf(R.string.RECIPE_KEY), recipeList);
         super.onSaveInstanceState(outState);
     }
 }

@@ -23,27 +23,17 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
     MethodFragment methodFrag;
     FragmentManager fragMan;
 
-    public static final String SELECTED_STEP = "selected_step";
-    public static final String STEP_ARRAY_SIZE = "number of steps";
-
     public static boolean twoPane;
 
     static ArrayList<Recipe.Ingredients> ingredientsList;
     static ArrayList<Steps> stepsList;
-
-    private String RECIPE_DETAIL = "detail recipe stack";
-    private String RECIPE_METHOD = "method recipe stack";
-    public static final String INGREDIENT_LIST= "ingredient_list";
-    public static final String STEP_LIST = "step_list";
-    private String OVERVIEW_TAG = "overview_fragment_tag";
-    private String METHOD_TAG = "method_fragment_tag";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        twoPane = false; //TODO: Implement phone <-> tablet recognition
+        twoPane = findViewById(R.id.detail_fragment_container2) != null;
 
         Timber.plant(new Timber.DebugTree());
         ButterKnife.bind(this);
@@ -55,26 +45,21 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
         fragMan = getSupportFragmentManager();
 
         if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(MainActivity.SELECTED_RECIPE)) {
-                selectedRecipe = savedInstanceState.getParcelable(MainActivity.SELECTED_RECIPE);
+            if (savedInstanceState.containsKey(String.valueOf(R.string.SELECTED_RECIPE))) {
+                selectedRecipe = savedInstanceState.getParcelable(String.valueOf(R.string.SELECTED_RECIPE));
             }
-            if (savedInstanceState.containsKey(INGREDIENT_LIST)) {
-                ingredientsList = savedInstanceState.getParcelableArrayList(INGREDIENT_LIST);
+            if (savedInstanceState.containsKey(String.valueOf(R.string.INGREDIENT_LIST))) {
+                ingredientsList = savedInstanceState.getParcelableArrayList(String.valueOf(R.string.INGREDIENT_LIST));
             }
-            if ( savedInstanceState.containsKey(STEP_LIST)) {
-                stepsList = savedInstanceState.getParcelableArrayList(STEP_LIST);
+            if (savedInstanceState.containsKey(String.valueOf(R.string.STEP_LIST))) {
+                stepsList = savedInstanceState.getParcelableArrayList(String.valueOf(R.string.STEP_LIST));
             }
-
-            overviewFrag = (OverviewFragment) fragMan.findFragmentByTag(OVERVIEW_TAG);
-            methodFrag = (MethodFragment) fragMan.findFragmentByTag(METHOD_TAG);
-
-            fragMan.popBackStack();
 
         } else {
             Intent recipeIntent = getIntent();
             Timber.v("recipe Intent: %s", recipeIntent);
-            if (recipeIntent != null && recipeIntent.hasExtra(MainActivity.SELECTED_RECIPE)) {
-                selectedRecipe = recipeIntent.getParcelableExtra(MainActivity.SELECTED_RECIPE);
+            if (recipeIntent != null && recipeIntent.hasExtra(String.valueOf(R.string.SELECTED_RECIPE))) {
+                selectedRecipe = recipeIntent.getParcelableExtra(String.valueOf(R.string.SELECTED_RECIPE));
                 Timber.v("ingredients test: %s", selectedRecipe.getIngredients());
             }
 
@@ -94,29 +79,50 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
         overviewFrag.setIngredientsList(ingredientsList);
         overviewFrag.setStepsList(stepsList);
 
-        fragMan.beginTransaction().replace(R.id.detail_fragment_container, overviewFrag, OVERVIEW_TAG)
-                .addToBackStack(RECIPE_DETAIL).commit();
+        fragMan.beginTransaction().add(R.id.detail_fragment_container1, overviewFrag)
+                .addToBackStack(null).commit();
+
+        if (twoPane) {
+            methodFrag = new MethodFragment();
+            methodFrag.setStep(stepsList.get(0));
+            methodFrag.setRecipe(selectedRecipe);
+            methodFrag.setStepsList(stepsList);
+            methodFrag.setTwoPane(twoPane);
+
+            fragMan.beginTransaction().add(R.id.detail_fragment_container2, methodFrag)
+                    .addToBackStack(null).commit();
+        }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(MainActivity.SELECTED_RECIPE, selectedRecipe);
-        outState.putParcelableArrayList(INGREDIENT_LIST, ingredientsList);
-        outState.putParcelableArrayList(STEP_LIST, stepsList);
+        outState.putParcelable(String.valueOf(R.string.SELECTED_RECIPE), selectedRecipe);
+        outState.putParcelableArrayList(String.valueOf(R.string.INGREDIENT_LIST), ingredientsList);
+        outState.putParcelableArrayList(String.valueOf(R.string.STEP_LIST), stepsList);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onClick(Steps step) {
-        if (twoPane) {
-            // tablet layout communication
-        } else {
 
+        if (twoPane) {
             methodFrag.setStep(step);
             methodFrag.setRecipe(selectedRecipe);
             methodFrag.setStepsList(stepsList);
-            fragMan.beginTransaction().replace(R.id.detail_fragment_container, methodFrag, METHOD_TAG)
-                    .addToBackStack(RECIPE_METHOD).commit();
+            methodFrag.setTwoPane(twoPane);
+
+            fragMan.beginTransaction().replace(R.id.detail_fragment_container2, methodFrag)
+                    .addToBackStack(null).commit();
+        } else {
+            Intent openMethod = new Intent(this, MethodActivity.class);
+            Bundle recipeBundle = new Bundle();
+
+            recipeBundle.putParcelableArrayList(String.valueOf(R.string.STEP_LIST), stepsList);
+            recipeBundle.putParcelable(String.valueOf(R.string.SELECTED_RECIPE), selectedRecipe);
+            recipeBundle.putParcelable(String.valueOf(R.string.SELECTED_STEP), step);
+
+            openMethod.putExtra(String.valueOf(R.string.RECIPE_BUNDLE), recipeBundle);
+            startActivity(openMethod);
         }
     }
 }
