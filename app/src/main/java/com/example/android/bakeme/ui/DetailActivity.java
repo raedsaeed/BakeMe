@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.content.res.AppCompatResources;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
@@ -23,7 +26,11 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
     MethodFragment methodFrag;
     FragmentManager fragMan;
 
+    //booleans to track layout and favouriting
     public static boolean twoPane;
+    public static boolean isFavourited;
+
+    Menu menu;
 
     static ArrayList<Recipe.Ingredients> ingredientsList;
     static ArrayList<Steps> stepsList;
@@ -87,7 +94,7 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
             methodFrag.setStep(stepsList.get(0));
             methodFrag.setRecipe(selectedRecipe);
             methodFrag.setStepsList(stepsList);
-            methodFrag.setTwoPane(twoPane);
+            //methodFrag.setTwoPane(twoPane);
 
             fragMan.beginTransaction().add(R.id.detail_fragment_container2, methodFrag)
                     .addToBackStack(null).commit();
@@ -109,7 +116,7 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
             methodFrag.setStep(step);
             methodFrag.setRecipe(selectedRecipe);
             methodFrag.setStepsList(stepsList);
-            methodFrag.setTwoPane(twoPane);
+            //methodFrag.setTwoPane(twoPane);
 
             fragMan.beginTransaction().replace(R.id.detail_fragment_container2, methodFrag)
                     .addToBackStack(null).commit();
@@ -124,5 +131,29 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
             openMethod.putExtra(String.valueOf(R.string.RECIPE_BUNDLE), recipeBundle);
             startActivity(openMethod);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
+
+        getMenuInflater().inflate(R.menu.favourite_bt, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.favourite_menu) {
+            if (isFavourited) {
+                isFavourited = false;
+                menu.getItem(0).setIcon(AppCompatResources
+                        .getDrawable(this, android.R.drawable.btn_star_big_off));
+            } else {
+                isFavourited = true;
+                menu.getItem(0).setIcon(AppCompatResources
+                        .getDrawable(this, android.R.drawable.btn_star_big_on));
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

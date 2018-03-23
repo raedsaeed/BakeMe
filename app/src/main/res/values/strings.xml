@@ -1,21 +1,26 @@
 <resources>
     <string name="app_name">BakeMe</string>
-    <string name="prev_button_contDescrip">Media player previous button</string>
-    <string name="play_button_contDescrip">Media player play button</string>
-    <string name="pause_button_contDescrip">Media player pause button</string>
-    <string name="navigate_back"><![CDATA[<<]]></string>
-    <string name="navigate_forward"><![CDATA[>>]]></string>
     <string name="ingredients_label">Ingredients:</string>
     <string name="overview_of_method_label">Overview of method:</string>
     <string name="go_to_step_iv">go to step</string>
     <string name="thumbnail_of_video">Thumbnail of video</string>
     <string name="tablet_tag">sw600dp</string>
+    <string name="widget_title">Shopping list for BakeMe app</string>
+    <string name="favourite_menu">Favourite</string>
+
+    <!-- Exoplayer-->
+    <string name="prev_button_contDescrip">Media player previous button</string>
+    <string name="play_button_contDescrip">Media player play button</string>
+    <string name="pause_button_contDescrip">Media player pause button</string>
+    <string name="navigate_back"><![CDATA[<<]]></string>
+    <string name="navigate_forward"><![CDATA[>>]]></string>
 
     <!--Content Descriptions -->
     <string name="navigate_forward_contDescrip">navigate to next step</string>
     <string name="navigate_back_contDescrip">Navigate back</string>
     <string name="recipe_card_image_contDescrip">Recipe card image</string>
     <string name="widget_title_contenDescrip">BakeMe app, shopping list widget</string>
+    <string name="favourited_recipe">favourited recipe</string>
 
     <!-- toasts and other messages -->
     <string name="landscape_instruction"> &lt; previous step | swipe right &gt;</string>
@@ -31,6 +36,5 @@
     <string name="SELECTED_STEP" translatable="false">selected step</string>
     <string name="SELECTED_RECIPE" translatable="false">selected_recipe</string>
     <string name="RECIPE_KEY" translatable="false">recipe_key</string>
-    <string name="widget_title">Shopping list for BakeMe app</string>
 
 </resources>

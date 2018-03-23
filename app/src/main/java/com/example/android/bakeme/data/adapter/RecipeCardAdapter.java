@@ -11,6 +11,8 @@ import android.widget.TextView;
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Steps;
+import com.example.android.bakeme.ui.DetailActivity;
+import com.example.android.bakeme.ui.MainActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -103,6 +105,12 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
         holder.cardServingTv.setText(servingText);
 
         holder.cardNameTv.setText(currentRecipe.getName());
+
+        if (DetailActivity.isFavourited) {//reflect whether recipe has been favourited
+            holder.favouriteIv.setVisibility(View.VISIBLE);
+        } else {
+            holder.favouriteIv.setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -132,13 +140,15 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
         TextView cardNameTv;
         @BindView(R.id.card_serving_tv)
         TextView cardServingTv;
+        @BindView(R.id.favourite_iv)
+        ImageView favouriteIv;
 
         /**
          * super constructor
          *
          * @param itemView is the holder in question.
          */
-        public RecipeCardHolder(View itemView) {
+        RecipeCardHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
