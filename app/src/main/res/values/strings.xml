@@ -15,6 +15,7 @@
     <string name="navigate_forward_contDescrip">navigate to next step</string>
     <string name="navigate_back_contDescrip">Navigate back</string>
     <string name="recipe_card_image_contDescrip">Recipe card image</string>
+    <string name="widget_title_contenDescrip">BakeMe app, shopping list widget</string>
 
     <!-- toasts and other messages -->
     <string name="landscape_instruction"> &lt; previous step | swipe right &gt;</string>
@@ -30,4 +31,6 @@
     <string name="SELECTED_STEP" translatable="false">selected step</string>
     <string name="SELECTED_RECIPE" translatable="false">selected_recipe</string>
     <string name="RECIPE_KEY" translatable="false">recipe_key</string>
+    <string name="widget_title">Shopping list for BakeMe app</string>
+
 </resources>

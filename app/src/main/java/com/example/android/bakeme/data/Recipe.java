@@ -293,7 +293,7 @@ public class Recipe implements Parcelable {
             String measureDisplay = getMeasurementString();
             String quantityDisplay = getQuantityString();
 
-            return "\u2022 " + quantityDisplay + " " + measureDisplay + " " + ingredient;
+            return quantityDisplay + " " + measureDisplay + " " + ingredient;
         }
 
         /** remove ".0" where necessary
