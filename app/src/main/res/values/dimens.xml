@@ -3,6 +3,9 @@
     <dimen name="margin">16dp</dimen>
     <dimen name="half_margin">8dp</dimen>
 
+    <dimen name="method_text_shown">200dp</dimen>
+    <dimen name="method_text_hidden">0dp</dimen>
+
     <!--
 Refer to App Widget Documentation for margin information
 http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout

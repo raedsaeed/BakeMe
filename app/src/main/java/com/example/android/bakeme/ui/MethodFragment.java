@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -84,8 +85,6 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
     // check whether device is landscape mode (single pane)
     boolean landMode;
 
-    //boolean twoPane;
-
     public void setStepsList(ArrayList<Steps> stepsList) {
         this.stepsList = stepsList;
     }
@@ -98,9 +97,8 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
         this.recipe = recipe;
     }
 
-    //public void setTwoPane(boolean twoPane) {this.twoPane = twoPane;}
 
-    public MethodFragment() {
+    public MethodFragment() { //empty constructor as neded
     }
 
     @Override
@@ -109,7 +107,9 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
         View root = inflater.inflate(R.layout.fragment_method, container, false);
         ButterKnife.bind(this, root);
 
-        landMode = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+        landMode = getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_LANDSCAPE
+                && !getResources().getBoolean(R.bool.isTablet);
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(String.valueOf(R.string.STEP_LIST))) {
@@ -121,6 +121,10 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
             if (savedInstanceState.containsKey(String.valueOf(R.string.SELECTED_RECIPE))) {
                 recipe = savedInstanceState.getParcelable(String.valueOf(R.string.SELECTED_RECIPE));
             }
+        }
+
+        if (!landMode) {
+            updateStepText();
         }
 
         handler = new Handler();
@@ -144,10 +148,9 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
         if (landMode) {
             Toast.makeText(getActivity(), R.string.landscape_instruction, Toast.LENGTH_SHORT)
                     .show();
-
+            setLandMode();
         } else {
-
-            //setLandMode();
+            setPortMode();
         }
 
         container.setOnTouchListener(new OnSwipeTouchListener(getActivity()) {
@@ -159,11 +162,11 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
                     goToPrevStep();
                     startChosenVideo();
 
-                    //if (!landMode) { //to help the user stay oriented when swiping through the videos
-                        Toast.makeText(getActivity(), step.getShortdescription(), Toast.LENGTH_SHORT)
-                                .show();
-                       // setLandMode();
-                    //}
+                    if (landMode) { //to help the user stay oriented when swiping through the videos
+                    Toast.makeText(getActivity(), step.getShortdescription(), Toast.LENGTH_SHORT)
+                            .show();
+                    setLandMode();
+                    }
                 }
             }
 
@@ -175,11 +178,11 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
                     goToNextStep();
                     startChosenVideo();
 
-                    //if (!landMode) { //to help the user stay oriented when swiping through the videos
-                        Toast.makeText(getActivity(), step.getShortdescription(), Toast.LENGTH_SHORT)
-                                .show();
-                        //setLandMode();
-                    //}
+                    if (landMode) { //to help the user stay oriented when swiping through the videos
+                    Toast.makeText(getActivity(), step.getShortdescription(), Toast.LENGTH_SHORT)
+                            .show();
+                    setLandMode();
+                    }
                 }
             }
         });
@@ -187,11 +190,17 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
         return root;
     }
 
+    private void setPortMode() {
+        navNextBt.setVisibility(View.VISIBLE);
+        navPrevBt.setVisibility(View.VISIBLE);
+        recipeStep.setVisibility(View.VISIBLE);
+    }
+
     // In landscape mode, ensure text and buttons remain hidden.
     private void setLandMode() {
         navNextBt.setVisibility(View.GONE);
         navPrevBt.setVisibility(View.GONE);
-        recipeStep.setVisibility(View.INVISIBLE);
+        recipeStep.setVisibility(View.GONE);
     }
 
     private void goToPrevStep() {
@@ -227,7 +236,7 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putParcelableArrayList(String.valueOf(R.string.STEP_LIST), stepsList);
         outState.putParcelable(String.valueOf(R.string.SELECTED_RECIPE), recipe);
         outState.putParcelable(String.valueOf(R.string.SELECTED_STEP), step);
