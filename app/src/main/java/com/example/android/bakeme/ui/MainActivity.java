@@ -95,13 +95,13 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                             ContentValues recipeValues = new ContentValues();
                             ContentValues ingredientValues = new ContentValues();
                             Recipe recipe = null;
-                            recipeValues.put(RECIPE_ID, recipe.getId());
-                            recipeValues.put(RECIPE_IMAGE, recipe.getImage());
-                            recipeValues.put(RECIPE_NAME, recipe.getName());
-                            recipeValues.put(RECIPE_SERVINGS, recipe.getServings());
+                            recipeValues.put(Recipe.RECIPE_ID, recipe.getId());
+                            recipeValues.put(Recipe.RECIPE_IMAGE, recipe.getImage());
+                            recipeValues.put(Recipe.RECIPE_NAME, recipe.getName());
+                            recipeValues.put(Recipe.RECIPE_SERVINGS, recipe.getServings());
                             //TODO: get ingredient list-reference
                             //TODO: get step list-reference
-                            recipeValues.put(RECIPE_FAVOURITED, recipe.getFavourited());
+                            recipeValues.put(Recipe.RECIPE_FAVOURITED, recipe.getFavourited());
                             getContentResolver().insert(RecipeProvider.CONTENT_URI_RECIPE, recipeValues);
 
 
