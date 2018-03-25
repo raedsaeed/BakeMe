@@ -17,7 +17,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -129,7 +128,7 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
 
         handler = new Handler();
 
-        String thumbnail = step.getThumbnailurl();
+        String thumbnail = step.getThumbnail();
         //if there are not thumbnails set image to null so app icon is shown
         assert thumbnail != null;
         if (thumbnail.isEmpty()) thumbnail = null;
@@ -163,9 +162,9 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
                     startChosenVideo();
 
                     if (landMode) { //to help the user stay oriented when swiping through the videos
-                    Toast.makeText(getActivity(), step.getShortdescription(), Toast.LENGTH_SHORT)
-                            .show();
-                    setLandMode();
+                        Toast.makeText(getActivity(), step.getShortDescription(), Toast.LENGTH_SHORT)
+                                .show();
+                        setLandMode();
                     }
                 }
             }
@@ -179,9 +178,9 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
                     startChosenVideo();
 
                     if (landMode) { //to help the user stay oriented when swiping through the videos
-                    Toast.makeText(getActivity(), step.getShortdescription(), Toast.LENGTH_SHORT)
-                            .show();
-                    setLandMode();
+                        Toast.makeText(getActivity(), step.getShortDescription(), Toast.LENGTH_SHORT)
+                                .show();
+                        setLandMode();
                     }
                 }
             }
@@ -204,8 +203,8 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
     }
 
     private void goToPrevStep() {
-        int stepId = step.getId() + 1;
-        Steps nextStep = recipe.getSteps().get(stepId);
+        long stepId = step.getId() + 1;
+        Steps nextStep = recipe.getSteps().get((int) stepId);
         setStep(nextStep);
         updateStepText();
         // Stop previous playback, prepare and play new
@@ -214,8 +213,8 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
     }
 
     private void goToNextStep() {
-        int stepId = step.getId() - 1;
-        Steps prevStep = recipe.getSteps().get(stepId);
+        long stepId = step.getId() - 1;
+        Steps prevStep = recipe.getSteps().get((int) stepId);
         setStep(prevStep);
         updateStepText();
         // Stop previous playback, prepare and play new
@@ -245,7 +244,7 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
 
     private void startChosenVideo() {
         exoPlayer.stop();
-        if (!step.getVideourl().isEmpty()) {
+        if (!step.getVideo().isEmpty()) {
             MediaSource mediaSource = getMediaSource();
             exoPlayer.prepare(mediaSource);
             exoPlayer.setPlayWhenReady(true);
@@ -258,7 +257,7 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
     @NonNull
     private MediaSource getMediaSource() {
         String userAgent = Util.getUserAgent(getActivity(), "BakeMe");
-        return new ExtractorMediaSource(Uri.parse(step.getVideourl()),
+        return new ExtractorMediaSource(Uri.parse(step.getVideo()),
                 new DefaultDataSourceFactory(getActivity(), userAgent),
                 new DefaultExtractorsFactory(), null, null);
     }

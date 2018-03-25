@@ -1,6 +1,8 @@
 package com.example.android.bakeme.data.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +13,6 @@ import android.widget.TextView;
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Steps;
-import com.example.android.bakeme.ui.DetailActivity;
-import com.example.android.bakeme.ui.MainActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
     public void onBindViewHolder(RecipeCardHolder holder, int position) {
         Recipe currentRecipe = this.recipeList.get(position);
 
-        int recipeId = currentRecipe.getId();
+        long recipeId = currentRecipe.getId();
 
         List<Steps> currentStep = currentRecipe.getSteps();
 
@@ -88,7 +88,7 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
         } else if (currentRecipe.getImage().isEmpty()) {
             for (int i = currentStep.size() - 1; i > 1; i--) {
                 Steps lastStep = currentStep.get(i);
-                recipeImage = lastStep.getThumbnailurl();
+                recipeImage = lastStep.getThumbnail();
                 if (!recipeImage.isEmpty()) break;
             }
             //if there are not thumbnails set image to null so app icon is shown
@@ -106,11 +106,14 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
 
         holder.cardNameTv.setText(currentRecipe.getName());
 
-        if (DetailActivity.isFavourited) {//reflect whether recipe has been favourited
-            holder.favouriteIv.setVisibility(View.VISIBLE);
+        //reflect whether recipe has been favourited
+        Drawable favStar;
+        if (currentRecipe.getFavourited() == ctxt.getResources().getInteger(R.integer.is_favourited)) {
+            favStar = AppCompatResources.getDrawable(ctxt, android.R.drawable.btn_star_big_on);
         } else {
-            holder.favouriteIv.setVisibility(View.GONE);
+            favStar = AppCompatResources.getDrawable(ctxt, android.R.drawable.btn_star_big_off);
         }
+        Picasso.with(ctxt).load(String.valueOf(favStar)).into(holder.favouriteIv);
     }
 
     /**

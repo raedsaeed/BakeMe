@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.android.bakeme.R;
-import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Steps;
 
 import java.util.ArrayList;
@@ -62,7 +61,7 @@ public class StepAdapter
             holder.stepNoTv.setText(String.valueOf(currentItem.getId()));
         }
 
-        holder.recipeTextTv.setText(currentItem.getShortdescription());
+        holder.recipeTextTv.setText(currentItem.getShortDescription());
     }
 
     @Override

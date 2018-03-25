@@ -9,6 +9,12 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions { //database written to schema. See: https://stackoverflow.com/a/44424908
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
     buildTypes {
         release {
@@ -23,24 +29,37 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+
+    //basics
     compile 'com.google.android.exoplayer:exoplayer:r2.2.0'
     compile 'com.android.support:recyclerview-v7:27.1.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
+
+    //databinding & loggin
     compile 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     implementation 'com.jakewharton.timber:timber:4.6.1'
+
+    //Retrofit
     compile 'com.google.code.gson:gson:2.8.2'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
+
+    //Room
+    implementation "android.arch.persistence.room:runtime:1.0.0"
+    annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
+
+    //Testing & Espresso
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     compile 'com.android.support.test.espresso:espresso-idling-resource:3.0.1'
     compile 'com.android.support:support-annotations:27.1.0'
     compile 'com.google.firebase:firebase-appindexing:12.0.0'
     compile 'com.android.support:design:27.1.0'
+    testImplementation "android.arch.persistence.room:testing:1.0.0"
 
-    // Testing-only dependencies
+// Testing-only dependencies
     androidTestCompile 'com.android.support:support-annotations:27.1.0'
     androidTestCompile 'com.android.support.test.espresso:espresso-core:3.0.1'
     androidTestCompile 'com.android.support.test.espresso:espresso-intents:3.0.1'

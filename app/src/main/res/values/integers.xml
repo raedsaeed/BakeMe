@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--boolean functionality -->
+    <integer name="not_checked">0</integer>
+    <integer name="is_checked">1</integer>
+    <integer name="not_favourited">0</integer>
+    <integer name="is_favourited">1</integer>
+
+</resources>
