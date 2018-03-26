@@ -50,7 +50,7 @@ public abstract class RecipeDatabase extends RoomDatabase {
                 Executors.newSingleThreadScheduledExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
-                        getRecipeDbInstance(ctxt).recipeDao().insertAll(Recipe.prePopulate());
+                        getRecipeDbInstance(ctxt).recipeDao().insertAll(Recipe);
                     }
                 });
 

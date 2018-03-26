@@ -2,6 +2,7 @@ package com.example.android.bakeme.data;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.content.ContentValues;
@@ -20,7 +21,9 @@ import java.util.StringTokenizer;
 
 import retrofit2.Retrofit;
 
+import static com.example.android.bakeme.data.Recipe.Ingredients.INGREDIENTS_ID;
 import static com.example.android.bakeme.data.Recipe.Ingredients.TABLE_INGREDIENTS;
+import static com.example.android.bakeme.data.Recipe.Steps.STEPS_ID;
 import static com.example.android.bakeme.data.Recipe.Steps.TABLE_STEPS;
 
 /**
@@ -222,10 +225,10 @@ public class Recipe implements Parcelable {
         dest.writeList(steps);
     }
 
-    @Entity(tableName = TABLE_STEPS)
+    @Entity(foreignKeys = { @ForeignKey(entity = Recipe.class, parentColumns = RECIPE_STEPS,
+                    childColumns = STEPS_ID)})
     public static class Steps implements Parcelable {
 
-        public static final String TABLE_STEPS = "steps";
         public static final String STEPS_ID = "id";
         public static final String STEPS_THUMBNAIL = "thumbnailURL";
         public static final String STEPS_VIDEO = "videoURL";
@@ -366,10 +369,12 @@ public class Recipe implements Parcelable {
         }
     }
 
-    @Entity(tableName = TABLE_INGREDIENTS)
+    @Entity(foreignKeys = { @ForeignKey(
+            entity = Recipe.class,
+            parentColumns = RECIPE_INGREDIENTS,
+            childColumns = INGREDIENTS_ID)})
     public static class Ingredients implements Parcelable {
 
-        public static final String TABLE_INGREDIENTS = "ingredients";
         public static final String INGREDIENTS_ID = "id";
         public static final String INGREDIENTS_INGREDIENT = "ingredient";
         public static final String INGREDIENTS_MEASURE = "measure";
@@ -548,6 +553,6 @@ public class Recipe implements Parcelable {
     }
 
     public static Recipe[] prePopulate() {
-        return new Recipe[];
+        //return new Recipe[];
     }
 }
