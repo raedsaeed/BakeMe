@@ -225,10 +225,12 @@ public class Recipe implements Parcelable {
         dest.writeList(steps);
     }
 
+    //see https://stackoverflow.com/a/44889919/7601437 for implementation (also for ingredients)
     @Entity(foreignKeys = { @ForeignKey(entity = Recipe.class, parentColumns = RECIPE_STEPS,
                     childColumns = STEPS_ID)})
     public static class Steps implements Parcelable {
 
+        public static final String TABLE_STEPS = "steps";
         public static final String STEPS_ID = "id";
         public static final String STEPS_THUMBNAIL = "thumbnailURL";
         public static final String STEPS_VIDEO = "videoURL";
@@ -375,6 +377,7 @@ public class Recipe implements Parcelable {
             childColumns = INGREDIENTS_ID)})
     public static class Ingredients implements Parcelable {
 
+        public static final String TABLE_INGREDIENTS = "ingredients";
         public static final String INGREDIENTS_ID = "id";
         public static final String INGREDIENTS_INGREDIENT = "ingredient";
         public static final String INGREDIENTS_MEASURE = "measure";
