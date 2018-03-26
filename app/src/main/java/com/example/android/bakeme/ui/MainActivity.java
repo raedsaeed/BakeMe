@@ -89,38 +89,7 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         if (response.isSuccessful()) {
                             //retrieve data and send to adapter to display
                             List<Recipe> recipes = response.body();
-                            //recipeList.addAll(recipes);
-
-                            //write api-data to the db.
-                            ContentValues recipeValues = new ContentValues();
-                            ContentValues ingredientValues = new ContentValues();
-                            Recipe recipe = null;
-                            recipeValues.put(Recipe.RECIPE_ID, recipe.getId());
-                            recipeValues.put(Recipe.RECIPE_IMAGE, recipe.getImage());
-                            recipeValues.put(Recipe.RECIPE_NAME, recipe.getName());
-                            recipeValues.put(Recipe.RECIPE_SERVINGS, recipe.getServings());
-                            //TODO: get ingredient list-reference
-                            //TODO: get step list-reference
-                            recipeValues.put(Recipe.RECIPE_FAVOURITED, recipe.getFavourited());
-                            getContentResolver().insert(RecipeProvider.CONTENT_URI_RECIPE, recipeValues);
-
-
-                            Ingredients ingredients = null;
-                            ingredientValues.put(Ingredients.INGREDIENTS_ID, ingredients.getId());
-                            ingredientValues.put(Ingredients.INGREDIENTS_INGREDIENT, ingredients
-                                    .getIngredient());
-                            ingredientValues.put(Ingredients.INGREDIENTS_MEASURE, ingredients
-                                    .getMeasure());
-                            ingredientValues.put(Ingredients.INGREDIENTS_QUANTITY, ingredients
-                                    .getQuantity());
-                            ingredientValues.put(Ingredients.INGEDIENTS_CHECKED, ingredients
-                                    .getChecked());
-                            getContentResolver().insert(RecipeProvider.CONTENT_URI_INGREDIENTS,
-                                    ingredientValues);
-
-                            ContentValues stepValues = new ContentValues();
-                            Steps steps = null;
-
+                            recipeList.addAll(recipes);
                             Timber.v("ingredients: %s", recipeList.get(0).getIngredients().size());
 
                             getSupportLoaderManager().initLoader(RECIPE_LOADER, null,

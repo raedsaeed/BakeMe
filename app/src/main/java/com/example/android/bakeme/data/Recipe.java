@@ -546,4 +546,8 @@ public class Recipe implements Parcelable {
             return measurements.get(measure);
         }
     }
+
+    public static Recipe[] prePopulate() {
+        return new Recipe[];
+    }
 }

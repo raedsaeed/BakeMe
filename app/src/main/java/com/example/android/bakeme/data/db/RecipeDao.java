@@ -9,6 +9,8 @@ import android.database.Cursor;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
 
+import java.util.List;
+
 import static com.example.android.bakeme.data.Recipe.*;
 import static com.example.android.bakeme.data.Recipe.Ingredients.TABLE_INGREDIENTS;
 import static com.example.android.bakeme.data.Recipe.Steps.TABLE_STEPS;
@@ -21,6 +23,9 @@ import static com.example.android.bakeme.data.Recipe.Steps.TABLE_STEPS;
 public interface RecipeDao {
 
     // ------------- C ----------- //
+
+    @Insert
+    void insertAll(Recipe... recipes);
 
     /**
      * Insert recipes from api
