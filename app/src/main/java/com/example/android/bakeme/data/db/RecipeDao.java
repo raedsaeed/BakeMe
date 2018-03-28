@@ -25,7 +25,7 @@ public interface RecipeDao {
     // ------------- C ----------- //
 
     @Insert
-    void insertAll(Recipe... recipes);
+    long[] insertAll(List<Recipe> recipes);
 
     /**
      * Insert recipes from api

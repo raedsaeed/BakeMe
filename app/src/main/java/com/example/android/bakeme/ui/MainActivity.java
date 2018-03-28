@@ -1,6 +1,5 @@
 package com.example.android.bakeme.ui;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -21,10 +20,10 @@ import android.view.View;
 
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
-import com.example.android.bakeme.data.Recipe.Ingredients;
 import com.example.android.bakeme.data.adapter.RecipeCardAdapter;
 import com.example.android.bakeme.data.api.ApiClient;
 import com.example.android.bakeme.data.api.ApiInterface;
+import com.example.android.bakeme.data.db.RecipeDatabase;
 import com.example.android.bakeme.data.db.RecipeProvider;
 import com.example.android.bakeme.databinding.ActivityMainBinding;
 
@@ -89,12 +88,11 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         if (response.isSuccessful()) {
                             //retrieve data and send to adapter to display
                             List<Recipe> recipes = response.body();
-                            recipeList.addAll(recipes);
-                            Timber.v("ingredients: %s", recipeList.get(0).getIngredients().size());
+                            //recipeList.addAll(recipes);
+                            RecipeDatabase.buildDatabase(MainActivity.this, recipes);
 
                             getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
                                     MainActivity.this);
-
 
                         } else {
                             //write error to log as a warning
@@ -108,6 +106,9 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         Timber.e(t.toString());
                     }
                 });
+            } else {
+                getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
+                        MainActivity.this);
             }
         } else {
             mainBinder.alertView.progressPb.setVisibility(View.GONE);

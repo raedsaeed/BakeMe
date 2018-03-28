@@ -4,6 +4,7 @@ import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
@@ -13,6 +14,8 @@ import android.support.annotation.Nullable;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
 import com.example.android.bakeme.data.Recipe.Steps;
+
+import java.util.List;
 
 /**
  * {@link RecipeProvider} is a {@link ContentProvider} communicating between the acitivities and the
@@ -131,6 +134,20 @@ public class RecipeProvider extends ContentProvider {
         }
     }
 
+    @Override
+    public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
+        switch (getMatch(uri)) {
+            case RECIPE_LIST:
+                final List<Recipe> recipes = null;
+                for (int i = 0; i < values.length; i++) {
+                    recipes.set(i, Recipe.fromContentValues(values[i]));
+                }
+                return recipeDao.insertAll(recipes).length;
+            default:
+                throw new IllegalArgumentException("Unknown URI: " + uri);
+        }
+    }
+
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) { // no single insertRecipe needed
@@ -159,7 +176,8 @@ public class RecipeProvider extends ContentProvider {
     }
 
     @Override
-    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[]
+            selectionArgs) {
         int match = getMatch(uri);
         switch (match) { //we only need to update single items
             case RECIPE_ENTRY:

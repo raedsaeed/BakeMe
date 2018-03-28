@@ -5,6 +5,8 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverter;
+import android.arch.persistence.room.TypeConverters;
 import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -14,7 +16,9 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -55,12 +59,12 @@ public class Recipe implements Parcelable {
     @SerializedName(RECIPE_SERVINGS)
     private int servings;
 
-    @Ignore
+    @TypeConverters(StepsConverters.class)
     @Expose
     @SerializedName("steps")
     private List<Steps> steps;
 
-    @Ignore
+    @TypeConverters(IngredientsConverters.class)
     @Expose
     @SerializedName("ingredients")
     private List<Ingredients> ingredients;
@@ -226,7 +230,7 @@ public class Recipe implements Parcelable {
     }
 
     //see https://stackoverflow.com/a/44889919/7601437 for implementation (also for ingredients)
-    @Entity(foreignKeys = { @ForeignKey(entity = Recipe.class, parentColumns = RECIPE_STEPS,
+    @Entity(foreignKeys = { @ForeignKey(entity = Recipe.class, parentColumns = RECIPE_ID,
                     childColumns = STEPS_ID)})
     public static class Steps implements Parcelable {
 
@@ -373,7 +377,7 @@ public class Recipe implements Parcelable {
 
     @Entity(foreignKeys = { @ForeignKey(
             entity = Recipe.class,
-            parentColumns = RECIPE_INGREDIENTS,
+            parentColumns = RECIPE_ID,
             childColumns = INGREDIENTS_ID)})
     public static class Ingredients implements Parcelable {
 
@@ -555,7 +559,45 @@ public class Recipe implements Parcelable {
         }
     }
 
-    public static Recipe[] prePopulate() {
-        //return new Recipe[];
+    public class StepsConverters {
+
+        Gson gson = new Gson();
+
+        @TypeConverter
+        public List<Steps> stringToSteps(String data) {
+            if (data == null) {
+                return Collections.emptyList();
+            }
+
+            Type listType = new TypeToken<List<Steps>>() {}.getType();
+
+            return gson.fromJson(data, listType);
+        }
+
+        @TypeConverter
+        public String stepsToString(List<Steps> steps) {
+            return gson.toJson(steps);
+        }
+    }
+
+    public class IngredientsConverters {
+
+        Gson gson = new Gson();
+
+        @TypeConverter
+        public List<Ingredients> stringToIngredients(String data) {
+            if (data == null) {
+                return Collections.emptyList();
+            }
+
+            Type listType = new TypeToken<List<Ingredients>>() {}.getType();
+
+            return gson.fromJson(data, listType);
+        }
+
+        @TypeConverter
+        public String ingredientsToString(List<Ingredients> ingredients) {
+            return gson.toJson(ingredients);
+        }
     }
 }

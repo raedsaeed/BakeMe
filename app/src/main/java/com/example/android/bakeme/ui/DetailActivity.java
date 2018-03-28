@@ -83,18 +83,13 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
                 Timber.v("ingredients test: %s", selectedRecipe.getIngredients());
             }
 
-            getSupportLoaderManager().initLoader(INGREDIENTS_LOADER, null, this);
-
-            getSupportLoaderManager().initLoader(STEPS_LOADER, null, this);
-//            List<Recipe.Ingredients> ingredients = selectedRecipe.getIngredients();
-//            ingredientsList.addAll(ingredients);
-//
-//            List<Steps> steps = selectedRecipe.getSteps();
-//            stepsList.addAll(steps);
-
             overviewFrag = new OverviewFragment();
             methodFrag = new MethodFragment();
         }
+
+        getSupportLoaderManager().initLoader(INGREDIENTS_LOADER, null, this);
+
+        getSupportLoaderManager().initLoader(STEPS_LOADER, null, this);
 
         getSupportActionBar().setTitle(selectedRecipe.getName());
 

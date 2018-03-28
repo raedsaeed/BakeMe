@@ -12,8 +12,7 @@ import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
 import com.example.android.bakeme.data.Recipe.Steps;
 
-import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 /**
@@ -41,7 +40,7 @@ public abstract class RecipeDatabase extends RoomDatabase {
                 RecipeDatabase.class).build();
     }
 
-    private void buildDatabase(final Context ctxt) {
+    public static void buildDatabase(final Context ctxt, final List<Recipe> recipes) {
         Room.databaseBuilder(ctxt.getApplicationContext(),
                 RecipeDatabase.class, "recipe.de").addCallback(new Callback() {
             @Override
@@ -50,7 +49,7 @@ public abstract class RecipeDatabase extends RoomDatabase {
                 Executors.newSingleThreadScheduledExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
-                        getRecipeDbInstance(ctxt).recipeDao().insertAll(new Recipe[]{Recipe});//TODO: how get "Recipe … recipe" ?
+                        getRecipeDbInstance(ctxt).recipeDao().insertAll(recipes);
                     }
                 });
 
