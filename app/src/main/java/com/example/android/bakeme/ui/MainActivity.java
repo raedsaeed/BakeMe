@@ -25,9 +25,9 @@ import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.adapter.RecipeCardAdapter;
 import com.example.android.bakeme.data.api.ApiClient;
 import com.example.android.bakeme.data.api.ApiInterface;
-import com.example.android.bakeme.data.db.RecipeDatabase;
-import com.example.android.bakeme.data.db.RecipeProvider;
+import com.example.android.bakeme.data.db.RecipeContract.RecipeEntry;
 import com.example.android.bakeme.databinding.ActivityMainBinding;
+import com.example.android.bakeme.utils.RecipeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +37,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import timber.log.Timber;
 
-import static com.example.android.bakeme.data.Recipe.*;
-
 public class MainActivity extends AppCompatActivity implements RecipeCardAdapter.RecipeClickHandler,
         LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -46,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
     ActivityMainBinding mainBinder;
     RecipeCardAdapter recipeCardAdapter;
     ArrayList<Recipe> recipeList;
+    Recipe receivedRecipe;
 
     private static int RECIPE_LOADER = 1;
 
@@ -90,12 +89,13 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
 //            if (recipeList == null) {
 
                 ApiInterface apiCall = ApiClient.getClient().create(ApiInterface.class);
+                final ArrayList<Recipe> receivedRecipes = new ArrayList<>();
 
                 Call<List<Recipe>> call = apiCall.getRecipes();
+
                 call.enqueue(new Callback<List<Recipe>>() {
                     @Override
                     public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
-                        recipeList = new ArrayList<>();
                         if (response.isSuccessful()) {
                             //retrieve data and send to adapter to display
                             List<Recipe> recipes = response.body();
@@ -126,9 +126,11 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         mainBinder.alertView.alertTv.setText(R.string.no_internet);
                     }
                 });
-            } else {
-                getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
-                        MainActivity.this);
+
+                //add the retrieved data to the roomDatabase
+                RecipeUtils.writeRecipesToRoom(receivedRecipes, this);
+                RecipeUtils.writeIngredientsToRoom(receivedRecipes, this);
+                RecipeUtils.writeStepsToRoom(receivedRecipes, this);
             }
     }
 
@@ -179,12 +181,12 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         Timber.v("onCreate Loader called");
         String[] projection = new String[]{
-                RECIPE_ID,
-                RECIPE_IMAGE,
-                RECIPE_NAME,
-                RECIPE_SERVINGS,
-                RECIPE_FAVOURITED};
-        return new CursorLoader(this, RecipeProvider.CONTENT_URI_RECIPE, projection,
+                RecipeEntry.RECIPE_ID,
+                RecipeEntry.RECIPE_IMAGE,
+                RecipeEntry.RECIPE_NAME,
+                RecipeEntry.RECIPE_SERVINGS,
+                RecipeEntry.RECIPE_FAVOURITED};
+        return new CursorLoader(this, RecipeEntry.CONTENT_URI_RECIPE, projection,
                 null, null, null);
     }
 
@@ -196,11 +198,11 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
             mainBinder.alertView.alertTv.setText(R.string.no_recipes);
         } else {
             while (data.moveToNext()) {
-                int id = data.getInt(data.getColumnIndex(RECIPE_ID));
-                String image = data.getString((data.getColumnIndex(RECIPE_IMAGE)));
-                String name = data.getString(data.getColumnIndex(RECIPE_NAME));
-                int servings = data.getInt(data.getColumnIndex(RECIPE_SERVINGS));
-                int favourited = data.getInt(data.getColumnIndex(RECIPE_FAVOURITED));
+                int id = data.getInt(data.getColumnIndex(RecipeEntry.RECIPE_ID));
+                String image = data.getString((data.getColumnIndex(RecipeEntry.RECIPE_IMAGE)));
+                String name = data.getString(data.getColumnIndex(RecipeEntry.RECIPE_NAME));
+                int servings = data.getInt(data.getColumnIndex(RecipeEntry.RECIPE_SERVINGS));
+                int favourited = data.getInt(data.getColumnIndex(RecipeEntry.RECIPE_FAVOURITED));
                 recipeList.add(new Recipe(id, image, name, servings, favourited));
             }
             data.moveToPosition(-1);

@@ -1,12 +1,11 @@
 package com.example.android.bakeme.data.db;
 
 import android.content.ContentProvider;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,15 +14,21 @@ import android.util.Log;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
 import com.example.android.bakeme.data.Recipe.Steps;
+import com.example.android.bakeme.data.db.RecipeContract.IngredientsEntry;
+import com.example.android.bakeme.data.db.RecipeContract.RecipeEntry;
+import com.example.android.bakeme.data.db.RecipeContract.StepsEntry;
+
 
 import java.util.ArrayList;
 import java.util.List;
+import timber.log.Timber;
 
 /**
  * {@link RecipeProvider} is a {@link ContentProvider} communicating between the acitivities and the
  * db using {@link RecipeDao}.
  */
 public class RecipeProvider extends ContentProvider {
+
     private static final String TAG = "RecipeProvider";
     //authority & uri
     public static final String CONTENT_AUTH = "com.example.android.bakeme";
@@ -56,6 +61,7 @@ public class RecipeProvider extends ContentProvider {
     public static final String CONTENT_ITEM_TYPE_INGREDIENTS = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/"
             + CONTENT_AUTH + PATH_INGREDIENTS;
 
+
     private static final int RECIPE_LIST = 100; //match code for all recipes
     private static final int RECIPE_ENTRY = 101; // match code for one recipe
 
@@ -69,18 +75,19 @@ public class RecipeProvider extends ContentProvider {
 
     private static UriMatcher buildMatcher() {
         final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        final String authority = CONTENT_AUTH;
+        final String authority = RecipeContract.CONTENT_AUTH;
 
-        uriMatcher.addURI(authority, PATH_RECIPE, RECIPE_LIST);
-        uriMatcher.addURI(authority, PATH_RECIPE + "/#", RECIPE_ENTRY);
-        uriMatcher.addURI(authority, PATH_STEPS, STEPS_LIST);
-        uriMatcher.addURI(authority, PATH_STEPS + "/#", STEPS_ENTRY);
-        uriMatcher.addURI(authority, PATH_INGREDIENTS, INGREDIENTS_LIST);
-        uriMatcher.addURI(authority, PATH_INGREDIENTS + "/#", INGREDIENTS_ENTRY);
+        uriMatcher.addURI(authority, RecipeContract.PATH_RECIPE, RECIPE_LIST);
+        uriMatcher.addURI(authority, RecipeContract.PATH_RECIPE + "/#", RECIPE_ENTRY);
+        uriMatcher.addURI(authority, RecipeContract.PATH_STEPS, STEPS_LIST);
+        uriMatcher.addURI(authority, RecipeContract.PATH_STEPS + "/#", STEPS_ENTRY);
+        uriMatcher.addURI(authority, RecipeContract.PATH_INGREDIENTS, INGREDIENTS_LIST);
+        uriMatcher.addURI(authority, RecipeContract.PATH_INGREDIENTS + "/#", INGREDIENTS_ENTRY);
         return uriMatcher;
     }
 
-    private static final UriMatcher uriMatcher = buildMatcher();
+    private static final UriMatcher uriMatcher = buildMatcher(); // match by MIMEtypes
+    private SQLiteDatabase dbRead, dbWrite; //access to the db to read & write
 
     private int getMatch(@NonNull Uri uri) {
         return uriMatcher.match(uri);
@@ -88,24 +95,31 @@ public class RecipeProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        recipeDao = RecipeDatabase.getRecipeDbInstance(getContext()).recipeDao();
+        RecipeDbHelper movieDbHelper = new RecipeDbHelper(getContext());
+
+        dbRead = movieDbHelper.getReadableDatabase();
+        dbWrite = movieDbHelper.getWritableDatabase();
+
+        Timber.plant(new Timber.DebugTree());
         return true;
     }
 
-    @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
         Cursor csr;
         switch (getMatch(uri)) {
             case RECIPE_LIST:
-                csr = recipeDao.QueryAllRecipes();
+                csr = dbRead.query(RecipeEntry.TABLE_RECIPE, projection, selection, selectionArgs,
+                        null, null, sortOrder);
                 break;
             case INGREDIENTS_LIST:
-                csr = recipeDao.QueryAllIngredients();
+                csr = dbRead.query(IngredientsEntry.TABLE_INGREDIENTS, projection, selection, selectionArgs,
+                        null, null, sortOrder);
                 break;
             case STEPS_LIST:
-                csr = recipeDao.QueryAllSteps();
+                csr = dbRead.query(StepsEntry.TABLE_STEPS, projection, selection, selectionArgs,
+                        null, null, sortOrder);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown uri, which cannot be queried: " + uri);
@@ -114,23 +128,22 @@ public class RecipeProvider extends ContentProvider {
         return csr;
     }
 
-    @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
         int match = getMatch(uri);
         switch (match) {
             case RECIPE_LIST:
-                return CONTENT_LIST_TYPE_RECIPE;
+                return RecipeEntry.CONTENT_LIST_TYPE_RECIPE;
             case RECIPE_ENTRY:
-                return CONTENT_ITEM_TYPE_RECIPE;
+                return RecipeEntry.CONTENT_ITEM_TYPE_RECIPE;
             case STEPS_LIST:
-                return CONTENT_LIST_TYPE_STEPS;
+                return StepsEntry.CONTENT_LIST_TYPE_STEPS;
             case STEPS_ENTRY:
-                return CONTENT_ITEM_TYPE_STEPS;
+                return StepsEntry.CONTENT_ITEM_TYPE_STEPS;
             case INGREDIENTS_LIST:
-                return CONTENT_LIST_TYPE_INGREDIENTS;
+                return IngredientsEntry.CONTENT_LIST_TYPE_INGREDIENTS;
             case INGREDIENTS_ENTRY:
-                return CONTENT_ITEM_TYPE_INGREDIENTS;
+                return IngredientsEntry.CONTENT_ITEM_TYPE_INGREDIENTS;
             default:
                 throw new IllegalArgumentException("Unknown uri " + uri + " with match " + match);
         }
@@ -138,6 +151,7 @@ public class RecipeProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
+
         switch (getMatch(uri)) {
             case RECIPE_LIST:
                 final List<Recipe> recipes = new ArrayList<>();
@@ -148,30 +162,38 @@ public class RecipeProvider extends ContentProvider {
                 return recipeDao.insertAll(recipes).length;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
+
         }
+
+        return rowsInserted;
     }
 
-    @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) { // no single insertRecipe needed
-        int match = getMatch(uri);
-        switch (match) {
+        long id = 0;
+
+        switch (getMatch(uri)) {
             case RECIPE_LIST:
                 Log.d(TAG, "Trying to insert ");
                         long recipeId = recipeDao.insertRecipe(Recipe.fromContentValues(values));
                         getContext().getContentResolver().notifyChange(uri, null);
                         return ContentUris.withAppendedId(uri, recipeId);
+
             case INGREDIENTS_LIST:
-                long ingredientsId = recipeDao.insertIngredient(Ingredients.fromContentValues(values));
-                getContext().getContentResolver().notifyChange(uri, null);
-                return ContentUris.withAppendedId(uri, ingredientsId);
+                id = dbWrite.insert(IngredientsEntry.TABLE_INGREDIENTS, null, values);
+                break;
             case STEPS_LIST:
-                long stepsId = recipeDao.insertStep(Steps.fromContentValues(values));
-                getContext().getContentResolver().notifyChange(uri, null);
-                return ContentUris.withAppendedId(uri, stepsId);
+                id = dbWrite.insert(StepsEntry.TABLE_STEPS, null, values);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
+        if (id == -1) {
+            Timber.e("Row could not be inserted for %s", uri);
+
+            notifyResolver(uri);
+        }
+        return ContentUris.withAppendedId(uri, id); // return new uri and id of row inserted.
     }
 
     @Override
@@ -182,20 +204,32 @@ public class RecipeProvider extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection, String[]
             selectionArgs) {
-        int match = getMatch(uri);
-        switch (match) { //we only need to update single items
+        if (values.size() == 0) {
+            return 0; // return early if nothing has been changed
+        }
+
+        int updatedRows = 0;
+
+        switch (getMatch(uri)) { //we only need to update single items
             case RECIPE_ENTRY:
-                Recipe recipe = Recipe.fromContentValues(values);
-                int countRecipe = recipeDao.updateRecipe(recipe);
-                getContext().getContentResolver().notifyChange(uri, null);
-                return countRecipe;
+                updatedRows = dbWrite.update(RecipeEntry.TABLE_RECIPE, values, selection,
+                        selectionArgs);
+                break;
             case INGREDIENTS_ENTRY:
-                Ingredients ingredient = Ingredients.fromContentValues(values);
-                int countIngredient = recipeDao.updateIngredient(ingredient);
-                getContext().getContentResolver().notifyChange(uri, null);
-                return countIngredient;
+                updatedRows = dbWrite.update(IngredientsEntry.TABLE_INGREDIENTS, values, selection,
+                        selectionArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
+        if (updatedRows != 0) {
+            notifyResolver(uri);
+        }
+        return updatedRows;
+    }
+
+
+    private void notifyResolver(@NonNull Uri uri) {
+        getContext().getContentResolver().notifyChange(uri, null);
     }
 }

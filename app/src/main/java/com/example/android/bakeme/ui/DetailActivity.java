@@ -20,13 +20,16 @@ import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
 import com.example.android.bakeme.data.Recipe.Steps;
 import com.example.android.bakeme.data.adapter.StepAdapter;
+import com.example.android.bakeme.data.db.RecipeContract;
+import com.example.android.bakeme.data.db.RecipeContract.IngredientsEntry;
 import com.example.android.bakeme.data.db.RecipeProvider;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.ButterKnife;
 import timber.log.Timber;
+
+import static com.example.android.bakeme.data.db.RecipeContract.*;
 
 public class DetailActivity extends AppCompatActivity implements StepAdapter.StepClickHandler,
         LoaderManager.LoaderCallbacks<Cursor> {
@@ -174,10 +177,10 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
         Uri uri = null;
         switch (id) {
             case INGREDIENTS_LOADER:
-                uri = RecipeProvider.CONTENT_URI_INGREDIENTS;
+                uri = IngredientsEntry.CONTENT_URI_INGREDIENTS;
                 break;
             case STEPS_LOADER:
-                uri = RecipeProvider.CONTENT_URI_STEPS;
+                uri = StepsEntry.CONTENT_URI_STEPS;
                 break;
         }
         return new CursorLoader(this, uri, null, null, null,
@@ -190,14 +193,15 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
             case INGREDIENTS_LOADER:
                 data.moveToFirst();
                 while (data.moveToNext()) {
-                    long id = data.getLong(data.getColumnIndex(Ingredients.INGREDIENTS_ID));
-                    String ingredient = data.getString(data.getColumnIndex(Ingredients
+                    long id = data.getLong(data.getColumnIndex(IngredientsEntry.INGREDIENTS_ID));
+                    String ingredient = data.getString(data.getColumnIndex(IngredientsEntry
                             .INGREDIENTS_INGREDIENT));
-                    String measure = data.getString(data.getColumnIndex(Ingredients
+                    String measure = data.getString(data.getColumnIndex(IngredientsEntry
                             .INGREDIENTS_MEASURE));
-                    int quantity = data.getInt(data.getColumnIndex(Ingredients
+                    int quantity = data.getInt(data.getColumnIndex(IngredientsEntry
                             .INGREDIENTS_QUANTITY));
-                    int checked = data.getInt(data.getColumnIndex(Ingredients.INGEDIENTS_CHECKED));
+                    int checked = data.getInt(data.getColumnIndex(IngredientsEntry
+                            .INGREDIENTS_CHECKED));
                     ingredientsList.add(new Ingredients(id, ingredient, measure, quantity,
                             checked));
                 }
@@ -205,13 +209,13 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
             case STEPS_LOADER:
                 data.moveToFirst();
                 while (data.moveToNext()) {
-                    long id = data.getLong(data.getColumnIndex(Steps.STEPS_ID));
-                    String shortDescription = data.getString(data.getColumnIndex(Steps
-                            .STEP_SHORT_DESCRIPTION));
-                    String description = data.getString(data.getColumnIndex(Steps
+                    long id = data.getLong(data.getColumnIndex(StepsEntry.STEPS_ID));
+                    String shortDescription = data.getString(data.getColumnIndex(StepsEntry
+                            .STEPS_SHORT_DESCRIPTION));
+                    String description = data.getString(data.getColumnIndex(StepsEntry
                             .STEPS_DESCRIPTION));
-                    String video = data.getString(data.getColumnIndex(Steps.STEPS_VIDEO));
-                    String thumbnail = data.getString(data.getColumnIndex(Steps.STEPS_THUMBNAIL));
+                    String video = data.getString(data.getColumnIndex(StepsEntry.STEPS_VIDEO));
+                    String thumbnail = data.getString(data.getColumnIndex(StepsEntry.STEPS_THUMBNAIL));
                     stepsList.add(new Steps(id, shortDescription, description, video, thumbnail));
                 }
 
