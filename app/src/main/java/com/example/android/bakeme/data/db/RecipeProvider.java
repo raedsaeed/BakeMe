@@ -10,11 +10,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
 import com.example.android.bakeme.data.Recipe.Steps;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,7 +24,7 @@ import java.util.List;
  * db using {@link RecipeDao}.
  */
 public class RecipeProvider extends ContentProvider {
-
+    private static final String TAG = "RecipeProvider";
     //authority & uri
     public static final String CONTENT_AUTH = "com.example.android.bakeme";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTH);
@@ -138,9 +140,10 @@ public class RecipeProvider extends ContentProvider {
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         switch (getMatch(uri)) {
             case RECIPE_LIST:
-                final List<Recipe> recipes = null;
+                final List<Recipe> recipes = new ArrayList<>();
                 for (int i = 0; i < values.length; i++) {
                     recipes.set(i, Recipe.fromContentValues(values[i]));
+                    Log.d(TAG, "bulkInsert: insert data num" + i);
                 }
                 return recipeDao.insertAll(recipes).length;
             default:
@@ -154,9 +157,10 @@ public class RecipeProvider extends ContentProvider {
         int match = getMatch(uri);
         switch (match) {
             case RECIPE_LIST:
-                long recipeId = recipeDao.insertRecipe(Recipe.fromContentValues(values));
-                getContext().getContentResolver().notifyChange(uri, null);
-                return ContentUris.withAppendedId(uri, recipeId);
+                Log.d(TAG, "Trying to insert ");
+                        long recipeId = recipeDao.insertRecipe(Recipe.fromContentValues(values));
+                        getContext().getContentResolver().notifyChange(uri, null);
+                        return ContentUris.withAppendedId(uri, recipeId);
             case INGREDIENTS_LIST:
                 long ingredientsId = recipeDao.insertIngredient(Ingredients.fromContentValues(values));
                 getContext().getContentResolver().notifyChange(uri, null);

@@ -1,5 +1,6 @@
 package com.example.android.bakeme.ui;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -16,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.View;
 
 import com.example.android.bakeme.R;
@@ -40,6 +42,7 @@ import static com.example.android.bakeme.data.Recipe.*;
 public class MainActivity extends AppCompatActivity implements RecipeCardAdapter.RecipeClickHandler,
         LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final String TAG = "MainActivity";
     ActivityMainBinding mainBinder;
     RecipeCardAdapter recipeCardAdapter;
     ArrayList<Recipe> recipeList;
@@ -51,7 +54,13 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         super.onCreate(savedInstanceState);
         mainBinder = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
-        Timber.plant(new Timber.DebugTree());
+////        Timber.plant(new Timber.DebugTree());
+//        if (RecipeDatabase.getRecipeDbInstance(this) ==null) {
+//            RecipeDatabase.getRecipeDbInstance(this);
+//        }
+
+        getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
+                MainActivity.this);
 
         if (savedInstanceState != null && savedInstanceState.containsKey(String.valueOf(R.string.RECIPE_KEY))) {
             mainBinder.alertView.progressPb.setVisibility(View.GONE);
@@ -59,10 +68,12 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
             recipeList = savedInstanceState.getParcelableArrayList(String.valueOf(R.string.RECIPE_KEY));
             if (recipeList != null) {
                 setAdapter(this, recipeList, this);
+                Log.d(TAG, "onCreate: there is some data" + recipeList.size());
             }
         } else {
-            checkNetworkAndLoadData();
-            getSupportLoaderManager().initLoader(RECIPE_LOADER, null, this);
+            Log.d(TAG, "onCreate: Recipe list is null");
+            getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
+                    MainActivity.this);
         }
     }
 
@@ -74,9 +85,9 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         NetworkInfo netInfo = connectMan.getActiveNetworkInfo();
         if (netInfo != null && netInfo.isConnectedOrConnecting()) {
             mainBinder.alertView.alertTv.setVisibility(View.GONE);
-            mainBinder.alertView.progressPb.setVisibility(View.GONE);
+            mainBinder.alertView.progressPb.setVisibility(View.VISIBLE);
 
-            if (recipeList == null) {
+//            if (recipeList == null) {
 
                 ApiInterface apiCall = ApiClient.getClient().create(ApiInterface.class);
 
@@ -88,11 +99,17 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         if (response.isSuccessful()) {
                             //retrieve data and send to adapter to display
                             List<Recipe> recipes = response.body();
+                            setAdapter(MainActivity.this, (ArrayList<Recipe>)recipes, MainActivity.this);
                             //recipeList.addAll(recipes);
-                            RecipeDatabase.buildDatabase(MainActivity.this, recipes);
-
-                            getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
-                                    MainActivity.this);
+                            ContentValues contentValues = new ContentValues();
+                            for (int i = 0; i< recipes.size(); i++) {
+                                contentValues.put(RECIPE_ID, recipes.get(i).getId());
+                                contentValues.put(RECIPE_FAVOURITED, recipes.get(i).getFavourited());
+                                contentValues.put(RECIPE_IMAGE, recipes.get(i).getImage());
+                                contentValues.put(RECIPE_NAME, recipes.get(i).getName());
+                                contentValues.put(RECIPE_SERVINGS, recipes.get(i).getServings());
+                                getContentResolver().insert(RecipeProvider.CONTENT_URI_RECIPE, contentValues);
+                            }
 
                         } else {
                             //write error to log as a warning
@@ -104,22 +121,21 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                     public void onFailure(Call<List<Recipe>> call, Throwable t) {
                         //write error to log
                         Timber.e(t.toString());
+                        mainBinder.alertView.progressPb.setVisibility(View.GONE);
+                        mainBinder.alertView.alertTv.setVisibility(View.VISIBLE);
+                        mainBinder.alertView.alertTv.setText(R.string.no_internet);
                     }
                 });
             } else {
                 getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
                         MainActivity.this);
             }
-        } else {
-            mainBinder.alertView.progressPb.setVisibility(View.GONE);
-            mainBinder.alertView.alertTv.setVisibility(View.VISIBLE);
-            mainBinder.alertView.alertTv.setText(R.string.no_internet);
-        }
     }
 
     //build the adapter and with it the RecyclerView to display the data.
     private void setAdapter(Context ctxt, ArrayList<Recipe> recipeList,
                             RecipeCardAdapter.RecipeClickHandler clicker) {
+        mainBinder.alertView.progressPb.setVisibility(View.GONE);
         //set up adapter and RecyclerView.
         recipeCardAdapter = new RecipeCardAdapter(ctxt, recipeList, clicker);
         mainBinder.recipeOverviewRv.setAdapter(recipeCardAdapter);
@@ -153,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
      */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG, "onSaveInstanceState: Saving data");
         outState.putParcelableArrayList(String.valueOf(R.string.RECIPE_KEY), recipeList);
         super.onSaveInstanceState(outState);
     }
@@ -173,11 +190,11 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-        Timber.v("onLoadFinished called");
+        Log.d(TAG, "onLoadFinished: Called");
+        recipeList = new ArrayList<>();
         if (data == null) {
             mainBinder.alertView.alertTv.setText(R.string.no_recipes);
         } else {
-            data.moveToFirst();
             while (data.moveToNext()) {
                 int id = data.getInt(data.getColumnIndex(RECIPE_ID));
                 String image = data.getString((data.getColumnIndex(RECIPE_IMAGE)));
@@ -186,9 +203,13 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                 int favourited = data.getInt(data.getColumnIndex(RECIPE_FAVOURITED));
                 recipeList.add(new Recipe(id, image, name, servings, favourited));
             }
+            data.moveToPosition(-1);
+            setAdapter(this, recipeList, this);
         }
-
-        setAdapter(this, recipeList, this);
+        Log.d(TAG, "onLoadFinished: Managed to get data and sat it to the adapter");
+        if (recipeList.size() == 0) {
+            checkNetworkAndLoadData();
+        }
     }
 
     @Override

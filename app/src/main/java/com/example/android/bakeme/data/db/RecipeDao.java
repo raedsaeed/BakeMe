@@ -33,7 +33,7 @@ public interface RecipeDao {
      * @param recipe the single recipe that will be added
      * @return number of recipes added.
      */
-    @Insert
+    @Insert(onConflict = 1)
     long insertRecipe(Recipe recipe);
 
     /**

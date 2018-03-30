@@ -7,6 +7,7 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
@@ -21,6 +22,7 @@ import java.util.concurrent.Executors;
  */
 @Database(entities = {Recipe.class, Steps.class, Ingredients.class}, version = 1)
 public abstract class RecipeDatabase extends RoomDatabase {
+    private static final String TAG = "RecipeDatabase";
 
     //weak access to Dao for the recipes.
     public abstract RecipeDao recipeDao();
@@ -30,7 +32,9 @@ public abstract class RecipeDatabase extends RoomDatabase {
     public static synchronized RecipeDatabase getRecipeDbInstance(Context ctxt) {
         if (recipeDbInstance == null) {
             recipeDbInstance = Room.databaseBuilder(ctxt.getApplicationContext(),
-                    RecipeDatabase.class, "recipeDb").build();
+                    RecipeDatabase.class, "recipeDb")
+                    .allowMainThreadQueries()
+                    .build();
         }
         return recipeDbInstance;
     }

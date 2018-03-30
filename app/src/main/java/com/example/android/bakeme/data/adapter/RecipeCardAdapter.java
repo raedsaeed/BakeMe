@@ -77,24 +77,25 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
 
         List<Steps> currentStep = currentRecipe.getSteps();
 
-        // currently there are no images available in the api, but assuming it would be updated at
-        // some point this code will display the image or a thumbnail.
+//         currently there are no images available in the api, but assuming it would be updated at
+//         some point this code will display the image or a thumbnail.
         String recipeImage = null;
         //get image if available
         if (!currentRecipe.getImage().isEmpty()) {
             recipeImage = currentRecipe.getImage();
 
             //if there is no image, get the last thumbnail in the list
-        } else if (currentRecipe.getImage().isEmpty()) {
-            for (int i = currentStep.size() - 1; i > 1; i--) {
-                Steps lastStep = currentStep.get(i);
-                recipeImage = lastStep.getThumbnail();
-                if (!recipeImage.isEmpty()) break;
-            }
-            //if there are not thumbnails set image to null so app icon is shown
-            assert recipeImage != null;
-            if (recipeImage.isEmpty()) recipeImage = null;
         }
+//        else if (currentRecipe.getImage().isEmpty()) {
+//            for (int i = currentStep.size() - 1; i > 1; i--) {
+//                Steps lastStep = currentStep.get(i);
+//                recipeImage = lastStep.getThumbnail();
+//                if (!recipeImage.isEmpty()) break;
+//            }
+//            //if there are not thumbnails set image to null so app icon is shown
+//            assert recipeImage != null;
+//            if (recipeImage.isEmpty()) recipeImage = null;
+//        }
 
         Picasso.with(ctxt).load(recipeImage)
                 .placeholder(R.drawable.ic_launcher_foreground)
