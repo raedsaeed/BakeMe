@@ -37,5 +37,7 @@
     <string name="SELECTED_RECIPE" translatable="false">selected_recipe</string>
     <string name="RECIPE_KEY" translatable="false">recipe_key</string>
     <string name="no_recipes">There are no recipe to be displayed.</string>
+    <string name="ingredient_indicator">ingredients for</string>
+    <string name="steps_indicator">steps for</string>
 
 </resources>
