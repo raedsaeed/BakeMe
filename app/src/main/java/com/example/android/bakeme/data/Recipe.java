@@ -22,7 +22,9 @@ import java.util.StringTokenizer;
 import retrofit2.Retrofit;
 
 import static com.example.android.bakeme.data.Recipe.Ingredients.INGREDIENTS_ID;
+import static com.example.android.bakeme.data.Recipe.Ingredients.TABLE_INGREDIENTS;
 import static com.example.android.bakeme.data.Recipe.Steps.STEPS_ID;
+import static com.example.android.bakeme.data.Recipe.Steps.TABLE_STEPS;
 
 /**
  * {@link Recipe} is an object holding the various infos provided by the API concerning all
@@ -53,15 +55,11 @@ public class Recipe implements Parcelable {
     @SerializedName(RECIPE_SERVINGS)
     private int servings;
 
-    @ColumnInfo(name = RECIPE_STEPS)
-    private String stepTracker;
     @Ignore
     @Expose
     @SerializedName("steps")
     private List<Steps> steps;
 
-    @ColumnInfo(name = RECIPE_INGREDIENTS)
-    private String ingredientsTracker;
     @Ignore
     @Expose
     @SerializedName("ingredients")
@@ -207,22 +205,6 @@ public class Recipe implements Parcelable {
 
     public void setFavourited(int favourited) {
         this.favourited = favourited;
-    }
-
-    public String getStepTracker() {
-        return stepTracker;
-    }
-
-    public void setStepTracker(String stepTracker) {
-        this.stepTracker = stepTracker;
-    }
-
-    public String getIngredientsTracker() {
-        return ingredientsTracker;
-    }
-
-    public void setIngredientsTracker(String ingredientsTracker) {
-        this.ingredientsTracker = ingredientsTracker;
     }
 
     @Override
