@@ -1,7 +1,18 @@
 package com.example.android.bakeme.data;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,28 +21,68 @@ import java.util.StringTokenizer;
 
 import retrofit2.Retrofit;
 
+import static com.example.android.bakeme.data.Recipe.Ingredients.INGREDIENTS_ID;
+import static com.example.android.bakeme.data.Recipe.Steps.STEPS_ID;
+
 /**
  * {@link Recipe} is an object holding the various infos provided by the API concerning all
  * aspects of the recipe in question. It is setup to using http://www.jsonschema2pojo.org/
  * to enable {@link Retrofit} to use it and implements {@link Parcelable} to enable
  * data persistence.
  */
+@Entity(tableName = Recipe.TABLE_RECIPE)
 public class Recipe implements Parcelable {
 
+    //db table
+    public static final String TABLE_RECIPE = "recipes";
+    public static final String RECIPE_ID = "id";
+    public static final String RECIPE_IMAGE = "image";
+    public static final String RECIPE_SERVINGS = "servings";
+    public static final String RECIPE_STEPS = "steps";
+    public static final String RECIPE_INGREDIENTS = "ingredients";
+    public static final String RECIPE_NAME = "name";
+    public static final String RECIPE_FAVOURITED = " favourited";
+
+    @ColumnInfo(name = RECIPE_IMAGE)
+    @Expose
+    @SerializedName(RECIPE_IMAGE)
     private String image;
 
+    @ColumnInfo(name = RECIPE_SERVINGS)
+    @Expose
+    @SerializedName(RECIPE_SERVINGS)
     private int servings;
 
+    @ColumnInfo(name = RECIPE_STEPS)
+    private String stepTracker;
+    @Ignore
+    @Expose
+    @SerializedName("steps")
     private List<Steps> steps;
 
+    @ColumnInfo(name = RECIPE_INGREDIENTS)
+    private String ingredientsTracker;
+    @Ignore
+    @Expose
+    @SerializedName("ingredients")
     private List<Ingredients> ingredients;
 
+    @ColumnInfo(name = RECIPE_NAME)
+    @Expose
+    @SerializedName(RECIPE_NAME)
     private String name;
 
+    @PrimaryKey
+    @ColumnInfo(index = true, name = RECIPE_ID)
+    @Expose
+    @SerializedName(RECIPE_ID)
     private long id;
 
+    //not part of the api, but used to track favourited recipes for the widget
+    @ColumnInfo(name = RECIPE_FAVOURITED)
     private int favourited;
 
+    @Ignore
     public Recipe(int id, String image, String name, int servings, int favourited) {
         this.id = id;
         this.image = image;
@@ -41,6 +92,38 @@ public class Recipe implements Parcelable {
     }
 
     public Recipe() {
+    }
+
+    //Create a new recipe from the offered ContentValues.
+    public static Recipe fromContentValues(ContentValues values) {
+        final Recipe recipe = new Recipe();
+
+        if (values.containsKey(RECIPE_ID)) {
+            recipe.id = values.getAsLong(RECIPE_ID);
+        }
+        if (values.containsKey(RECIPE_IMAGE)) {
+            recipe.image = values.getAsString(RECIPE_IMAGE);
+        }
+        if (values.containsKey(RECIPE_SERVINGS)) {
+            recipe.servings = values.getAsInteger(RECIPE_SERVINGS);
+        }
+        if (values.containsKey(RECIPE_STEPS)) {
+            recipe.steps = new Gson().fromJson(values.getAsString(RECIPE_STEPS),
+                    new TypeToken<List<Steps>>() {
+                    }.getType());
+        }
+        if (values.containsKey(RECIPE_INGREDIENTS)) {
+            recipe.ingredients = new Gson().fromJson(values.getAsString(RECIPE_INGREDIENTS),
+                    new TypeToken<List<Ingredients>>() {
+                    }.getType());
+        }
+        if (values.containsKey(RECIPE_NAME)) {
+            recipe.name = values.getAsString(RECIPE_NAME);
+        }
+        if (values.containsKey(RECIPE_FAVOURITED)) {
+            recipe.favourited = values.getAsInteger(RECIPE_FAVOURITED);
+        }
+        return recipe;
     }
 
     protected Recipe(Parcel in) {
@@ -126,6 +209,22 @@ public class Recipe implements Parcelable {
         this.favourited = favourited;
     }
 
+    public String getStepTracker() {
+        return stepTracker;
+    }
+
+    public void setStepTracker(String stepTracker) {
+        this.stepTracker = stepTracker;
+    }
+
+    public String getIngredientsTracker() {
+        return ingredientsTracker;
+    }
+
+    public void setIngredientsTracker(String ingredientsTracker) {
+        this.ingredientsTracker = ingredientsTracker;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -144,21 +243,48 @@ public class Recipe implements Parcelable {
         dest.writeList(steps);
     }
 
+    //see https://stackoverflow.com/a/44889919/7601437 for implementation (also for ingredients)
+    @Entity(foreignKeys = { @ForeignKey(entity = Recipe.class, parentColumns = RECIPE_ID,
+            childColumns = STEPS_ID)})
     public static class Steps implements Parcelable {
 
+        public static final String TABLE_STEPS = "steps";
+        public static final String STEPS_ID = "id";
+        public static final String STEPS_THUMBNAIL = "thumbnailURL";
+        public static final String STEPS_VIDEO = "videoURL";
+        public static final String STEPS_DESCRIPTION = "description";
+        public static final String STEP_SHORT_DESCRIPTION = "shortDescription";
+
+        @ColumnInfo(name = STEPS_THUMBNAIL)
+        @Expose
+        @SerializedName(STEPS_THUMBNAIL)
         private String thumbnail;
 
+        @ColumnInfo(name = STEPS_VIDEO)
+        @Expose
+        @SerializedName(STEPS_VIDEO)
         private String video;
 
+        @ColumnInfo(name = STEPS_DESCRIPTION)
+        @Expose
+        @SerializedName(STEPS_DESCRIPTION)
         private String description;
 
+        @ColumnInfo(name = STEP_SHORT_DESCRIPTION)
+        @Expose
+        @SerializedName(STEP_SHORT_DESCRIPTION)
         private String shortDescription;
 
+        @PrimaryKey
+        @ColumnInfo(index = true, name = STEPS_ID)
+        @Expose
+        @SerializedName(STEPS_ID)
         private long id;
 
         public Steps() {
         }
 
+        @Ignore
         public Steps(long id, String shortDescription, String description, String video,
                      String thumbnail) {
             this.id = id;
@@ -166,6 +292,26 @@ public class Recipe implements Parcelable {
             this.description = description;
             this.video = video;
             this.thumbnail = thumbnail;
+        }
+
+        public static Steps fromContentValues(ContentValues values) {
+            Steps steps = new Steps();
+            if (values.containsKey(STEPS_ID)) {
+                steps.id = values.getAsInteger(STEPS_ID);
+            }
+            if (values.containsKey(STEPS_THUMBNAIL)) {
+                steps.thumbnail = values.getAsString(STEPS_THUMBNAIL);
+            }
+            if (values.containsKey(STEPS_VIDEO)) {
+                steps.video = values.getAsString(STEPS_VIDEO);
+            }
+            if (values.containsKey(STEPS_DESCRIPTION)) {
+                steps.description = values.getAsString(STEPS_DESCRIPTION);
+            }
+            if (values.containsKey(STEP_SHORT_DESCRIPTION)) {
+                steps.shortDescription = values.getAsString(STEP_SHORT_DESCRIPTION);
+            }
+            return steps;
         }
 
         protected Steps(Parcel in) {
@@ -243,27 +389,72 @@ public class Recipe implements Parcelable {
         }
     }
 
+    @Entity(foreignKeys = { @ForeignKey(
+            entity = Recipe.class,
+            parentColumns = RECIPE_ID,
+            childColumns = INGREDIENTS_ID)})
     public static class Ingredients implements Parcelable {
 
+        public static final String TABLE_INGREDIENTS = "ingredients";
+        public static final String INGREDIENTS_ID = "id";
+        public static final String INGREDIENTS_INGREDIENT = "ingredient";
+        public static final String INGREDIENTS_MEASURE = "measure";
+        public static final String INGREDIENTS_QUANTITY = "quantity";
+        public static final String INGEDIENTS_CHECKED = "checked";
+
+        @ColumnInfo(name = INGREDIENTS_INGREDIENT)
+        @Expose
+        @SerializedName(INGREDIENTS_INGREDIENT)
         private String ingredient;
 
+        @ColumnInfo(name = INGREDIENTS_MEASURE)
+        @Expose
+        @SerializedName(INGREDIENTS_MEASURE)
         private String measure;
 
+        @ColumnInfo(name = INGREDIENTS_QUANTITY)
+        @Expose
+        @SerializedName(INGREDIENTS_QUANTITY)
         private double quantity;
 
+        @PrimaryKey(autoGenerate = true)
+        @ColumnInfo(index = true, name = INGREDIENTS_ID)
         private long id;
 
+        //not part of the api, but used to track selected ingredients for the widget
+        @ColumnInfo(name = INGEDIENTS_CHECKED)
         private int checked;
 
         public Ingredients() {
         }
 
+        @Ignore
         public Ingredients(long id, String ingredient, String measure, int quantity, int checked) {
             this.id = id;
             this.ingredient = ingredient;
             this.measure = measure;
             this.quantity = quantity;
             this.checked = checked;
+        }
+
+        public static Ingredients fromContentValues(ContentValues values) {
+            Ingredients ingredients = new Ingredients();
+            if (values.containsKey(INGREDIENTS_ID)) {
+                ingredients.id = values.getAsInteger(INGREDIENTS_ID);
+            }
+            if (values.containsKey(INGREDIENTS_INGREDIENT)) {
+                ingredients.ingredient = values.getAsString(INGREDIENTS_INGREDIENT);
+            }
+            if (values.containsKey(INGREDIENTS_MEASURE)) {
+                ingredients.measure = values.getAsString(INGREDIENTS_MEASURE);
+            }
+            if (values.containsKey(INGREDIENTS_QUANTITY)) {
+                ingredients.quantity = values.getAsDouble(INGREDIENTS_QUANTITY);
+            }
+            if (values.containsKey(INGEDIENTS_CHECKED)) {
+                ingredients.checked = values.getAsInteger(INGEDIENTS_CHECKED);
+            }
+            return ingredients;
         }
 
         protected Ingredients(Parcel in) {
