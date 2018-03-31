@@ -20,16 +20,12 @@ import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
 import com.example.android.bakeme.data.Recipe.Steps;
 import com.example.android.bakeme.data.adapter.StepAdapter;
-import com.example.android.bakeme.data.db.RecipeContract;
-import com.example.android.bakeme.data.db.RecipeContract.IngredientsEntry;
 import com.example.android.bakeme.data.db.RecipeProvider;
 
 import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import timber.log.Timber;
-
-import static com.example.android.bakeme.data.db.RecipeContract.*;
 
 public class DetailActivity extends AppCompatActivity implements StepAdapter.StepClickHandler,
         LoaderManager.LoaderCallbacks<Cursor> {
@@ -69,21 +65,25 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(String.valueOf(R.string.SELECTED_RECIPE))) {
-                selectedRecipe = savedInstanceState.getParcelable(String.valueOf(R.string.SELECTED_RECIPE));
+                selectedRecipe = savedInstanceState.getParcelable(String
+                        .valueOf(R.string.SELECTED_RECIPE));
             }
             if (savedInstanceState.containsKey(String.valueOf(R.string.INGREDIENT_LIST))) {
-                ingredientsList = savedInstanceState.getParcelableArrayList(String.valueOf(R.string.INGREDIENT_LIST));
+                ingredientsList = savedInstanceState.getParcelableArrayList(String
+                        .valueOf(R.string.INGREDIENT_LIST));
             }
             if (savedInstanceState.containsKey(String.valueOf(R.string.STEP_LIST))) {
-                stepsList = savedInstanceState.getParcelableArrayList(String.valueOf(R.string.STEP_LIST));
+                stepsList = savedInstanceState.getParcelableArrayList(String
+                        .valueOf(R.string.STEP_LIST));
             }
 
         } else {
             Intent recipeIntent = getIntent();
             Timber.v("recipe Intent: %s", recipeIntent);
-            if (recipeIntent != null && recipeIntent.hasExtra(String.valueOf(R.string.SELECTED_RECIPE))) {
-                selectedRecipe = recipeIntent.getParcelableExtra(String.valueOf(R.string.SELECTED_RECIPE));
-                Timber.v("ingredients test: %s", selectedRecipe.getIngredients());
+            if (recipeIntent != null && recipeIntent.hasExtra(String
+                    .valueOf(R.string.SELECTED_RECIPE))) {
+                selectedRecipe = recipeIntent.getParcelableExtra(String
+                        .valueOf(R.string.SELECTED_RECIPE));
             }
 
             overviewFrag = new OverviewFragment();
@@ -175,15 +175,21 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         Uri uri = null;
+        String selection = null;
+        String[] selectionArgs = new String[0];
         switch (id) {
             case INGREDIENTS_LOADER:
-                uri = IngredientsEntry.CONTENT_URI_INGREDIENTS;
+                selection = Ingredients.INGREDIENTS_ASSOCIATED_RECIPE;
+                selectionArgs = new String[]{Recipe.ASSOCIATED_RECIPE + selectedRecipe.getId()};
+                uri = RecipeProvider.CONTENT_URI_INGREDIENTS;
                 break;
             case STEPS_LOADER:
-                uri = StepsEntry.CONTENT_URI_STEPS;
+                selection = Steps.STEPS_ASSOCIATED_RECIPE;
+                selectionArgs = new String[]{Recipe.ASSOCIATED_RECIPE + selectedRecipe.getId()};
+                uri = RecipeProvider.CONTENT_URI_STEPS;
                 break;
         }
-        return new CursorLoader(this, uri, null, null, null,
+        return new CursorLoader(this, uri, null, selection, selectionArgs,
                 null);
     }
 
@@ -193,14 +199,14 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
             case INGREDIENTS_LOADER:
                 data.moveToFirst();
                 while (data.moveToNext()) {
-                    long id = data.getLong(data.getColumnIndex(IngredientsEntry.INGREDIENTS_ID));
-                    String ingredient = data.getString(data.getColumnIndex(IngredientsEntry
+                    long id = data.getLong(data.getColumnIndex(Ingredients.INGREDIENTS_ID));
+                    String ingredient = data.getString(data.getColumnIndex(Ingredients
                             .INGREDIENTS_INGREDIENT));
-                    String measure = data.getString(data.getColumnIndex(IngredientsEntry
+                    String measure = data.getString(data.getColumnIndex(Ingredients
                             .INGREDIENTS_MEASURE));
-                    int quantity = data.getInt(data.getColumnIndex(IngredientsEntry
+                    int quantity = data.getInt(data.getColumnIndex(Ingredients
                             .INGREDIENTS_QUANTITY));
-                    int checked = data.getInt(data.getColumnIndex(IngredientsEntry
+                    int checked = data.getInt(data.getColumnIndex(Ingredients
                             .INGREDIENTS_CHECKED));
                     ingredientsList.add(new Ingredients(id, ingredient, measure, quantity,
                             checked));
@@ -209,18 +215,19 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
             case STEPS_LOADER:
                 data.moveToFirst();
                 while (data.moveToNext()) {
-                    long id = data.getLong(data.getColumnIndex(StepsEntry.STEPS_ID));
-                    String shortDescription = data.getString(data.getColumnIndex(StepsEntry
-                            .STEPS_SHORT_DESCRIPTION));
-                    String description = data.getString(data.getColumnIndex(StepsEntry
-                            .STEPS_DESCRIPTION));
-                    String video = data.getString(data.getColumnIndex(StepsEntry.STEPS_VIDEO));
-                    String thumbnail = data.getString(data.getColumnIndex(StepsEntry.STEPS_THUMBNAIL));
+                    long id = data.getLong(data.getColumnIndex(Steps.STEPS_ID));
+                    String shortDescription
+                            = data.getString(data.getColumnIndex(Steps.STEPS_SHORT_DESCRIPTION));
+                    String description
+                            = data.getString(data.getColumnIndex(Steps.STEPS_DESCRIPTION));
+                    String video = data.getString(data.getColumnIndex(Steps.STEPS_VIDEO));
+                    String thumbnail = data.getString(data.getColumnIndex(Steps.STEPS_THUMBNAIL));
                     stepsList.add(new Steps(id, shortDescription, description, video, thumbnail));
                 }
 
+                data.close();
+                Timber.v("Steplist = " + stepsList.size() + " & ingredientlist = " + ingredientsList.size());
         }
-
     }
 
     @Override

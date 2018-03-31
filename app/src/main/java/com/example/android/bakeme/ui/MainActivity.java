@@ -28,6 +28,7 @@ import com.example.android.bakeme.data.api.ApiInterface;
 import com.example.android.bakeme.data.db.RecipeDatabase;
 import com.example.android.bakeme.data.db.RecipeProvider;
 import com.example.android.bakeme.databinding.ActivityMainBinding;
+import com.example.android.bakeme.utils.RecipeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,6 @@ import static com.example.android.bakeme.data.Recipe.*;
 public class MainActivity extends AppCompatActivity implements RecipeCardAdapter.RecipeClickHandler,
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String TAG = "MainActivity";
     ActivityMainBinding mainBinder;
     RecipeCardAdapter recipeCardAdapter;
     ArrayList<Recipe> recipeList;
@@ -68,10 +68,8 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
             recipeList = savedInstanceState.getParcelableArrayList(String.valueOf(R.string.RECIPE_KEY));
             if (recipeList != null) {
                 setAdapter(this, recipeList, this);
-                Log.d(TAG, "onCreate: there is some data" + recipeList.size());
             }
         } else {
-            Log.d(TAG, "onCreate: Recipe list is null");
             getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
                     MainActivity.this);
         }
@@ -99,17 +97,12 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                     if (response.isSuccessful()) {
                         //retrieve data and send to adapter to display
                         List<Recipe> recipes = response.body();
-                        setAdapter(MainActivity.this, (ArrayList<Recipe>)recipes, MainActivity.this);
-                        //recipeList.addAll(recipes);
-                        ContentValues contentValues = new ContentValues();
-                        for (int i = 0; i< recipes.size(); i++) {
-                            contentValues.put(RECIPE_ID, recipes.get(i).getId());
-                            contentValues.put(RECIPE_FAVOURITED, recipes.get(i).getFavourited());
-                            contentValues.put(RECIPE_IMAGE, recipes.get(i).getImage());
-                            contentValues.put(RECIPE_NAME, recipes.get(i).getName());
-                            contentValues.put(RECIPE_SERVINGS, recipes.get(i).getServings());
-                            getContentResolver().insert(RecipeProvider.CONTENT_URI_RECIPE, contentValues);
-                        }
+                        recipeList.addAll(recipes);
+                        Timber.v("recipe list size :%s", recipeList.size());
+                        setAdapter(MainActivity.this, recipeList, MainActivity.this);
+                        RecipeUtils.writeRecipesToRoom(recipeList, MainActivity.this);
+                        RecipeUtils.writeIngredientsToRoom(recipeList, MainActivity.this);
+                        RecipeUtils.writeStepsToRoom(recipeList, MainActivity.this);
 
                     } else {
                         //write error to log as a warning
@@ -157,7 +150,6 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
     public void onClick(Recipe selectedRecipe) {
         Intent openDetailActivity = new Intent(this, DetailActivity.class);
         openDetailActivity.putExtra(String.valueOf(R.string.SELECTED_RECIPE), selectedRecipe);
-        Timber.v("ingredients: %s", selectedRecipe.getIngredients().size());
 
         startActivity(openDetailActivity);
     }
@@ -169,7 +161,6 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
      */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        Log.d(TAG, "onSaveInstanceState: Saving data");
         outState.putParcelableArrayList(String.valueOf(R.string.RECIPE_KEY), recipeList);
         super.onSaveInstanceState(outState);
     }
@@ -190,7 +181,6 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-        Log.d(TAG, "onLoadFinished: Called");
         recipeList = new ArrayList<>();
         if (data == null) {
             mainBinder.alertView.alertTv.setText(R.string.no_recipes);
@@ -203,10 +193,10 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                 int favourited = data.getInt(data.getColumnIndex(RECIPE_FAVOURITED));
                 recipeList.add(new Recipe(id, image, name, servings, favourited));
             }
-            data.moveToPosition(-1);
+            data.close();
             setAdapter(this, recipeList, this);
+            Timber.v("recipeList: %s", recipeList.size());
         }
-        Log.d(TAG, "onLoadFinished: Managed to get data and sat it to the adapter");
         if (recipeList.size() == 0) {
             checkNetworkAndLoadData();
         }

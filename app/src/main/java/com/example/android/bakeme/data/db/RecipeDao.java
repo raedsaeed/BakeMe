@@ -42,7 +42,7 @@ public interface RecipeDao {
      * @param ingredient the single ingredient that will be added
      * @return number of ingredients added.
      */
-    @Insert
+    @Insert(onConflict = 1)
     long insertIngredient(Ingredients ingredient);
 
     /**
@@ -51,7 +51,7 @@ public interface RecipeDao {
      * @param step the single step that will be added
      * @return number of steps added.
      */
-    @Insert
+    @Insert(onConflict = 1)
     long insertStep(Steps step);
 
     //single inserts is not needed as we will not be writing our own.

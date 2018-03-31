@@ -39,5 +39,6 @@
     <string name="no_recipes">There are no recipe to be displayed.</string>
     <string name="ingredient_indicator">ingredients for</string>
     <string name="steps_indicator">steps for</string>
+    <string name="associated_recipe">associatedRecipe</string>
 
 </resources>
