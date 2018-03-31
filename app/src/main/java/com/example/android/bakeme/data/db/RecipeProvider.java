@@ -18,6 +18,9 @@ import com.example.android.bakeme.data.db.RecipeContract.IngredientsEntry;
 import com.example.android.bakeme.data.db.RecipeContract.RecipeEntry;
 import com.example.android.bakeme.data.db.RecipeContract.StepsEntry;
 
+
+import java.util.ArrayList;
+import java.util.List;
 import timber.log.Timber;
 
 /**
@@ -25,6 +28,38 @@ import timber.log.Timber;
  * db using {@link RecipeDao}.
  */
 public class RecipeProvider extends ContentProvider {
+
+    private static final String TAG = "RecipeProvider";
+    //authority & uri
+    public static final String CONTENT_AUTH = "com.example.android.bakeme";
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTH);
+
+    //paths for the tables
+    public static final String PATH_RECIPE = "recipe";
+    public static final String PATH_STEPS = "steps";
+    public static final String PATH_INGREDIENTS = "ingredients";
+
+    // table uris
+    public static final Uri CONTENT_URI_RECIPE = BASE_CONTENT_URI.buildUpon()
+            .appendPath(PATH_RECIPE).build();
+    public static final Uri CONTENT_URI_STEPS = BASE_CONTENT_URI.buildUpon()
+            .appendPath(PATH_STEPS).build();
+    public static final Uri CONTENT_URI_INGREDIENTS = BASE_CONTENT_URI.buildUpon()
+            .appendPath(PATH_INGREDIENTS).build();
+
+    //MIME types
+    public static final String CONTENT_LIST_TYPE_RECIPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/"
+            + CONTENT_AUTH + PATH_RECIPE;
+    public static final String CONTENT_ITEM_TYPE_RECIPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/"
+            + CONTENT_AUTH + PATH_RECIPE;
+    public static final String CONTENT_LIST_TYPE_STEPS = ContentResolver.CURSOR_DIR_BASE_TYPE + "/"
+            + CONTENT_AUTH + PATH_STEPS;
+    public static final String CONTENT_ITEM_TYPE_STEPS = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/"
+            + CONTENT_AUTH + PATH_STEPS;
+    public static final String CONTENT_LIST_TYPE_INGREDIENTS = ContentResolver.CURSOR_DIR_BASE_TYPE + "/"
+            + CONTENT_AUTH + PATH_INGREDIENTS;
+    public static final String CONTENT_ITEM_TYPE_INGREDIENTS = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/"
+            + CONTENT_AUTH + PATH_INGREDIENTS;
 
 
     private static final int RECIPE_LIST = 100; //match code for all recipes
@@ -116,44 +151,18 @@ public class RecipeProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
-        dbWrite.beginTransaction();
-        int rowsInserted = 0;
-        long id = 0;
-        try {
-            switch (getMatch(uri)) {
-                case RECIPE_LIST:
-                    for (ContentValues value : values) {
-                        dbWrite.insert(RecipeEntry.TABLE_RECIPE, null, value);
-                        if (id != -1) {
-                            rowsInserted++;
-                        }
-                    }
-                    break;
-                case INGREDIENTS_LIST:
-                    for (ContentValues value : values) {
-                        dbWrite.insert(IngredientsEntry.TABLE_INGREDIENTS, null, value);
-                        if (id != -1) {
-                            rowsInserted++;
-                        }
-                    }
-                    break;
-                case STEPS_LIST:
-                    for (ContentValues value : values) {
-                        dbWrite.insert(StepsEntry.TABLE_STEPS, null, value);
-                        if (id != -1) {
-                            rowsInserted++;
-                        }
-                    }
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown URI: " + uri);
 
-            }
-        } finally {
-            dbWrite.endTransaction();
-        }
-        if (rowsInserted > 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+        switch (getMatch(uri)) {
+            case RECIPE_LIST:
+                final List<Recipe> recipes = new ArrayList<>();
+                for (int i = 0; i < values.length; i++) {
+                    recipes.set(i, Recipe.fromContentValues(values[i]));
+                    Log.d(TAG, "bulkInsert: insert data num" + i);
+                }
+                return recipeDao.insertAll(recipes).length;
+            default:
+                throw new IllegalArgumentException("Unknown URI: " + uri);
+
         }
 
         return rowsInserted;
@@ -165,8 +174,11 @@ public class RecipeProvider extends ContentProvider {
 
         switch (getMatch(uri)) {
             case RECIPE_LIST:
-                id = dbWrite.insert(RecipeEntry.TABLE_RECIPE, null, values);
-                break;
+                Log.d(TAG, "Trying to insert ");
+                        long recipeId = recipeDao.insertRecipe(Recipe.fromContentValues(values));
+                        getContext().getContentResolver().notifyChange(uri, null);
+                        return ContentUris.withAppendedId(uri, recipeId);
+
             case INGREDIENTS_LIST:
                 id = dbWrite.insert(IngredientsEntry.TABLE_INGREDIENTS, null, values);
                 break;
