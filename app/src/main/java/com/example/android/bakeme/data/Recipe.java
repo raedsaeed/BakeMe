@@ -569,7 +569,7 @@ public class Recipe implements Parcelable {
          */
         private String getQuantityString() {
             String quantityValue = String.valueOf(quantity);
-            String quantityDisplay = null;
+            String quantityDisplay;
             if (quantityValue.endsWith(".0")) {
                 StringTokenizer quantitySplit = new StringTokenizer(quantityValue, ".");
                 quantityDisplay = quantitySplit.nextToken();

@@ -111,27 +111,26 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         RecipeUtils.writeRecipesToRoom(recipeList, MainActivity.this);
                         setAdapter(MainActivity.this, recipeList, MainActivity.this);
 
-                        //create arrayList and instance for both Ingredients and Steps.
+                        //create arrayList both Ingredients and Steps.
                         ArrayList<Ingredients> ingredientsList = new ArrayList<>();
-                        Ingredients currentIngredient = new Ingredients();
-
                         ArrayList<Steps> stepsList = new ArrayList<>();
-                        Steps currentSteps = new Steps();
+                        long recipeId;
 
-                        for (Recipe recipe: response.body()) {
-                            long recipeId = recipe.getId();
+                        for (Recipe recipe: recipes) {
+                            recipeId = recipe.getId();
                             //get this recipe's ingredients from the response and write them to room.
-                            currentIngredient.setAssociatedRecipe(recipeId); //TODO: debugger "0, null, null" ?!
                             ingredientsList.addAll(recipe.getIngredients());
-                            RecipeUtils.writeIngredientsToRoom(ingredientsList,
+                            RecipeUtils.writeIngredientsToRoom(ingredientsList, recipeId,
                                     MainActivity.this);
-                            ingredientsList.clear(); //ready for the next recipe
+
 
                             //get this recipe's steps from the reponse and write them to room.
-                            currentSteps.setAssociatedRecipe(recipeId);
                             stepsList.addAll(recipe.getSteps());
-                            RecipeUtils.writeStepsToRoom(stepsList, MainActivity.this);
-                            stepsList.clear(); // ready for the next recipe
+                            RecipeUtils.writeStepsToRoom(stepsList, recipeId,MainActivity.this);
+                            //clear all for next recipe
+                            ingredientsList.clear();
+                            stepsList.clear();
+                            recipeId = 0;
                         }
                     } else {
                         //write error to log as a warning
@@ -181,6 +180,9 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         openDetailActivity.putExtra(String.valueOf(R.string.SELECTED_RECIPE), selectedRecipe);
 
         startActivity(openDetailActivity);
+
+        //TODO: favourite button action
+        // https://github.com/irfankhoirul/udacity-baking-app/blob/master/app/src/main/java/com/irfankhoirul/recipe/modul/recipe/RecipeFragment.java
     }
 
     /**

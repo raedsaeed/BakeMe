@@ -39,7 +39,7 @@ public class RecipeUtils {
     }
 
     public static void writeIngredientsToRoom(ArrayList<Ingredients> ingredientsList,
-                                              Context ctxt) {
+                                              long recipeId, Context ctxt) {
         ContentValues setOfIngredients = new ContentValues();
 
         for (int i = 0; i < ingredientsList.size(); i++) {
@@ -55,13 +55,13 @@ public class RecipeUtils {
             setOfIngredients.put(Ingredients.INGREDIENTS_CHECKED,
                     receivedIngredients.getChecked());
             setOfIngredients.put(Ingredients.INGREDIENTS_ASSOCIATED_RECIPE,
-                    receivedIngredients.getAssociatedRecipe());
+                    recipeId);
 
             ctxt.getContentResolver().insert(RecipeProvider.CONTENT_URI_INGREDIENTS, setOfIngredients);
         }
     }
 
-    public static void writeStepsToRoom(ArrayList<Steps> stepsList, Context ctxt) {
+    public static void writeStepsToRoom(ArrayList<Steps> stepsList, long recipeId, Context ctxt) {
         ContentValues setOfSteps = new ContentValues();
 
         for (int i = 0; i < stepsList.size(); i++) {
@@ -73,7 +73,7 @@ public class RecipeUtils {
             setOfSteps.put(Steps.STEPS_SHORT_DESCRIPTION,
                     receivedSteps.getShortDescription());
             setOfSteps.put(Steps.STEPS_DESCRIPTION, receivedSteps.getDescription());
-            setOfSteps.put(Steps.STEPS_ASSOCIATED_RECIPE, receivedSteps.getAssociatedRecipe());
+            setOfSteps.put(Steps.STEPS_ASSOCIATED_RECIPE, recipeId);
 
             ctxt.getContentResolver().insert(RecipeProvider.CONTENT_URI_STEPS, setOfSteps);
         }
