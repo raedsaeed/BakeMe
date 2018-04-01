@@ -263,6 +263,6 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-
+    //not needed
     }
 }
