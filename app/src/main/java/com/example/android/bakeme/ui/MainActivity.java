@@ -114,22 +114,41 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         //retrieve data and send to adapter to display
                         List<Recipe> recipes = response.body();
                         recipeList.addAll(recipes);
+                        ArrayList<Ingredients> ingredientsList = new ArrayList<>();
+                        Ingredients currentIngredient = new Ingredients();
 
+                        ArrayList<Steps> stepsList = new ArrayList<>();
+                        Steps currentSteps = new Steps();
 
-                        for (int i = 0; i <recipeList.size(); i++) {
-                            long recipeId = recipeList.get(i).getId();
-                            RecipeUtils.writeRecipesToRoom(recipeId, recipeList,
+                        for (Recipe recipe: response.body()) {
+                            recipeList.add(recipe);
+                            RecipeUtils.writeRecipesToRoom(recipeList, MainActivity.this);
+
+                            currentIngredient.setAssociatedRecipe(recipe.getId());
+                            ingredientsList.addAll(recipe.getIngredients());
+                            RecipeUtils.writeIngredientsToRoom(ingredientsList,
                                     MainActivity.this);
 
-                            List<Ingredients> ingredientsList = recipeList.get(i).getIngredients();
-                            RecipeUtils.writeIngredientsToRoom(recipeId, ingredientsList,
+                            currentSteps.setAssociatedRecipe(recipe.getId());
+                            stepsList.addAll(recipe.getSteps());
+                            RecipeUtils.writeStepsToRoom(stepsList,
                                     MainActivity.this);
-
-                            List<Steps> stepsList = recipeList.get(i).getSteps();
-                            RecipeUtils.writeStepsToRoom(recipeId, stepsList,
-                                    MainActivity.this);
-
                         }
+
+//                        for (int i = 0; i <recipeList.size(); i++) {
+//                            long recipeId = recipeList.get(i).getId();
+//                            RecipeUtils.writeRecipesToRoom(recipeId, recipeList,
+//                                    MainActivity.this);
+//
+//                            List<Ingredients> ingredientsList = recipeList.get(i).getIngredients();
+//                            RecipeUtils.writeIngredientsToRoom(recipeId, ingredientsList,
+//                                    MainActivity.this);
+//
+//                            List<Steps> stepsList = recipeList.get(i).getSteps();
+//                            RecipeUtils.writeStepsToRoom(recipeId, stepsList,
+//                                    MainActivity.this);
+//
+//                        }
                         Timber.v("recipe list size :%s", recipeList.size());
                         setAdapter(MainActivity.this, recipeList, MainActivity.this);
 

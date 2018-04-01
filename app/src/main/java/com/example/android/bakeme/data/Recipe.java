@@ -274,6 +274,9 @@ public class Recipe implements Parcelable {
         @SerializedName(STEPS_SHORT_DESCRIPTION)
         private String shortDescription;
 
+        @ColumnInfo(name = STEPS_ASSOCIATED_RECIPE)
+        private long associatedRecipe;
+
         @PrimaryKey
         @ColumnInfo(index = true, name = STEPS_ID)
         @Expose
@@ -295,9 +298,9 @@ public class Recipe implements Parcelable {
 
         public static Steps fromContentValues(ContentValues values) {
             Steps steps = new Steps();
-            if (values.containsKey(STEPS_ID)) {
-                steps.id = values.getAsInteger(STEPS_ID);
-            }
+//            if (values.containsKey(STEPS_ID)) {
+//                steps.id = values.getAsInteger(STEPS_ID);
+//            }
             if (values.containsKey(STEPS_THUMBNAIL)) {
                 steps.thumbnail = values.getAsString(STEPS_THUMBNAIL);
             }
@@ -310,6 +313,9 @@ public class Recipe implements Parcelable {
             if (values.containsKey(STEPS_SHORT_DESCRIPTION)) {
                 steps.shortDescription = values.getAsString(STEPS_SHORT_DESCRIPTION);
             }
+            if (values.containsKey(STEPS_ASSOCIATED_RECIPE)) {
+                steps.associatedRecipe = values.getAsLong(STEPS_ASSOCIATED_RECIPE);
+            }
             return steps;
         }
 
@@ -318,7 +324,8 @@ public class Recipe implements Parcelable {
             video = in.readString();
             description = in.readString();
             shortDescription = in.readString();
-            id = in.readInt();
+            id = in.readLong();
+            associatedRecipe = in.readLong();
         }
 
         public static final Creator<Steps> CREATOR = new Creator<Steps>() {
@@ -373,6 +380,14 @@ public class Recipe implements Parcelable {
             this.id = id;
         }
 
+        public long getAssociatedRecipe() {
+            return associatedRecipe;
+        }
+
+        public void setAssociatedRecipe(long associatedRecipe) {
+            this.associatedRecipe = associatedRecipe;
+        }
+
         @Override
         public int describeContents() {
             return 0;
@@ -385,6 +400,7 @@ public class Recipe implements Parcelable {
             dest.writeString(description);
             dest.writeString(shortDescription);
             dest.writeLong(id);
+            dest.writeLong(associatedRecipe);
         }
     }
 
@@ -414,6 +430,9 @@ public class Recipe implements Parcelable {
         @SerializedName(INGREDIENTS_QUANTITY)
         private double quantity;
 
+        @ColumnInfo(name = INGREDIENTS_ASSOCIATED_RECIPE)
+        private long associatedRecipe;
+
         @PrimaryKey(autoGenerate = true)
         @ColumnInfo(index = true, name = INGREDIENTS_ID)
         private long id;
@@ -432,6 +451,7 @@ public class Recipe implements Parcelable {
             this.measure = measure;
             this.quantity = quantity;
             this.checked = checked;
+            this.associatedRecipe = associatedRecipe;
         }
 
         public static Ingredients fromContentValues(ContentValues values) {
@@ -451,6 +471,9 @@ public class Recipe implements Parcelable {
             if (values.containsKey(INGREDIENTS_CHECKED)) {
                 ingredients.checked = values.getAsInteger(INGREDIENTS_CHECKED);
             }
+            if ( values.containsKey(INGREDIENTS_ASSOCIATED_RECIPE)) {
+                ingredients.associatedRecipe = values.getAsLong(INGREDIENTS_ASSOCIATED_RECIPE);
+            }
             return ingredients;
         }
 
@@ -459,6 +482,7 @@ public class Recipe implements Parcelable {
             measure = in.readString();
             quantity = in.readDouble();
             checked = in.readInt();
+            associatedRecipe = in.readLong();
         }
 
         @Override
@@ -467,6 +491,7 @@ public class Recipe implements Parcelable {
             dest.writeString(measure);
             dest.writeDouble(quantity);
             dest.writeInt(checked);
+            dest.writeLong(associatedRecipe);
         }
 
         @Override
@@ -524,6 +549,14 @@ public class Recipe implements Parcelable {
 
         public void setChecked(int checked) {
             this.checked = checked;
+        }
+
+        public long getAssociatedRecipe() {
+            return associatedRecipe;
+        }
+
+        public void setAssociatedRecipe(long associatedRecipe) {
+            this.associatedRecipe = associatedRecipe;
         }
 
         @Override

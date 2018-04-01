@@ -177,15 +177,16 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
         Uri uri = null;
         String selection = null;
         String[] selectionArgs = new String[0];
+        long selectedRecipeId = selectedRecipe.getId();
         switch (id) {
             case INGREDIENTS_LOADER:
                 selection = Ingredients.INGREDIENTS_ASSOCIATED_RECIPE;
-                selectionArgs = new String[]{Recipe.ASSOCIATED_RECIPE + selectedRecipe.getId()};
+                selectionArgs = new String[]{Recipe.ASSOCIATED_RECIPE + String.valueOf(selectedRecipeId)};
                 uri = RecipeProvider.CONTENT_URI_INGREDIENTS;
                 break;
             case STEPS_LOADER:
                 selection = Steps.STEPS_ASSOCIATED_RECIPE;
-                selectionArgs = new String[]{Recipe.ASSOCIATED_RECIPE + selectedRecipe.getId()};
+                selectionArgs = new String[]{Recipe.ASSOCIATED_RECIPE + String.valueOf(selectedRecipeId)};
                 uri = RecipeProvider.CONTENT_URI_STEPS;
                 break;
         }

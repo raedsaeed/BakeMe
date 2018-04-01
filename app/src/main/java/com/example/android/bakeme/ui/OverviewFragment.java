@@ -89,5 +89,4 @@ public class OverviewFragment extends Fragment {
         this.stepsList = stepsList;
         stepAdapter.notifyDataSetChanged();
     }
-
 }

@@ -28,31 +28,23 @@ import timber.log.Timber;
  */
 public class RecipeUtils {
 
-    private static Recipe receivedRecipe;
-
-    public static void writeRecipesToRoom(long recipeId, List<Recipe> recipes, Context ctxt) {
+    public static void writeRecipesToRoom(List<Recipe> recipes, Context ctxt) {
         ContentValues singleRecipe = new ContentValues();
 
         for (int i = 0; i< recipes.size(); i++) {
-            receivedRecipe = recipes.get(i);
+            Recipe receivedRecipe = recipes.get(i);
 
             singleRecipe.put(Recipe.RECIPE_ID, receivedRecipe.getId());
             singleRecipe.put(Recipe.RECIPE_IMAGE, receivedRecipe.getImage());
             singleRecipe.put(Recipe.RECIPE_NAME, receivedRecipe.getName());
             singleRecipe.put(Recipe.RECIPE_SERVINGS, receivedRecipe.getServings());
             singleRecipe.put(Recipe.RECIPE_FAVOURITED, receivedRecipe.getFavourited());
-            singleRecipe.put(Recipe.RECIPE_INGREDIENTS, ctxt.getString(R.string.ingredient_indicator)
-                    + String.valueOf(recipeId));
-            singleRecipe.put(Recipe.RECIPE_STEPS, ctxt.getString(R.string.steps_indicator)
-                    +  String.valueOf(recipeId));
 
             ctxt.getContentResolver().insert(RecipeProvider.CONTENT_URI_RECIPE, singleRecipe);
         }
-
-
     }
 
-    public static void writeIngredientsToRoom(long recipeId, List<Ingredients> ingredientsList,
+    public static void writeIngredientsToRoom(ArrayList<Ingredients> ingredientsList,
                                               Context ctxt) {
         ContentValues setOfIngredients = new ContentValues();
 
@@ -69,13 +61,13 @@ public class RecipeUtils {
             setOfIngredients.put(Ingredients.INGREDIENTS_CHECKED,
                     receivedIngredients.getChecked());
             setOfIngredients.put(Ingredients.INGREDIENTS_ASSOCIATED_RECIPE,
-                    Recipe.ASSOCIATED_RECIPE +  String.valueOf(recipeId));
+                    receivedIngredients.getAssociatedRecipe());
 
             ctxt.getContentResolver().insert(RecipeProvider.CONTENT_URI_INGREDIENTS, setOfIngredients);
         }
     }
 
-    public static void writeStepsToRoom(long recipeId, List<Steps> stepsList, Context ctxt) {
+    public static void writeStepsToRoom(ArrayList<Steps> stepsList, Context ctxt) {
         ContentValues setOfSteps = new ContentValues();
 
         for (int i = 0; i < stepsList.size(); i++) {
@@ -88,7 +80,7 @@ public class RecipeUtils {
                     receivedSteps.getShortDescription());
             setOfSteps.put(Steps.STEPS_DESCRIPTION, receivedSteps.getDescription());
             setOfSteps.put(Steps.STEPS_ASSOCIATED_RECIPE,
-                    Recipe.ASSOCIATED_RECIPE +  String.valueOf(recipeId));
+                    Recipe.ASSOCIATED_RECIPE +  receivedSteps.getAssociatedRecipe());
 
             ctxt.getContentResolver().insert(RecipeProvider.CONTENT_URI_STEPS, setOfSteps);
         }
