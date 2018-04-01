@@ -4,12 +4,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
-import android.util.Log;
-import android.widget.ImageButton;
 
-import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
 import com.example.android.bakeme.data.Recipe.Steps;
@@ -25,20 +20,34 @@ import timber.log.Timber;
  */
 public class RecipeUtils {
 
+    public static long getCurrentRecipeId() {
+        return currentRecipeId;
+    }
+
+    public static void setCurrentRecipeId(long currentRecipeId) {
+        RecipeUtils.currentRecipeId = currentRecipeId;
+    }
+
+    static long currentRecipeId;
+
     public static void writeRecipesToRoom(List<Recipe> recipes, Context ctxt) {
         ContentValues singleRecipe = new ContentValues();
 
         for (int i = 0; i < recipes.size(); i++) {
             Recipe receivedRecipe = recipes.get(i);
 
-            singleRecipe.put(Recipe.RECIPE_ID, receivedRecipe.getId());
-            singleRecipe.put(Recipe.RECIPE_IMAGE, receivedRecipe.getImage());
-            singleRecipe.put(Recipe.RECIPE_NAME, receivedRecipe.getName());
-            singleRecipe.put(Recipe.RECIPE_SERVINGS, receivedRecipe.getServings());
-            singleRecipe.put(Recipe.RECIPE_FAVOURITED, receivedRecipe.getFavourited());
+            getRecipeValues(singleRecipe, receivedRecipe);
 
             ctxt.getContentResolver().insert(RecipeProvider.CONTENT_URI_RECIPE, singleRecipe);
         }
+    }
+
+    private static void getRecipeValues(ContentValues singleRecipe, Recipe receivedRecipe) {
+        singleRecipe.put(Recipe.RECIPE_ID, receivedRecipe.getId());
+        singleRecipe.put(Recipe.RECIPE_IMAGE, receivedRecipe.getImage());
+        singleRecipe.put(Recipe.RECIPE_NAME, receivedRecipe.getName());
+        singleRecipe.put(Recipe.RECIPE_SERVINGS, receivedRecipe.getServings());
+        singleRecipe.put(Recipe.RECIPE_FAVOURITED, receivedRecipe.isFavourited());
     }
 
     public static void writeIngredientsToRoom(ArrayList<Ingredients> ingredientsList,
@@ -56,7 +65,7 @@ public class RecipeUtils {
             setOfIngredients.put(Ingredients.INGREDIENTS_QUANTITY, receivedIngredients
                     .getQuantity());
             setOfIngredients.put(Ingredients.INGREDIENTS_CHECKED,
-                    receivedIngredients.getChecked());
+                    receivedIngredients.isChecked());
             setOfIngredients.put(Ingredients.INGREDIENTS_ASSOCIATED_RECIPE,
                     recipeId);
 
@@ -89,19 +98,8 @@ public class RecipeUtils {
                 selectedRecipe.getId());
 
         //store changed favourite selection to the db.
-        ContentValues values = new ContentValues();
-        values.put(Recipe.RECIPE_FAVOURITED, selectedRecipe.getFavourited());
-        ctxt.getContentResolver().update(uri, values, null, null);
-    }
-
-    public static void setfavButton(boolean isFavourited, ImageButton favButtonIb, Context ctxt) {
-        int color = 0;
-        if (isFavourited) {
-            color = R.color.colorAccent;
-        } else {
-            color = R.color.colorUnselected;
-        }
-        DrawableCompat.setTint(favButtonIb.getDrawable(),
-                ContextCompat.getColor(ctxt, color));
+        ContentValues singleRecipe = new ContentValues();
+        getRecipeValues(singleRecipe, selectedRecipe);
+        ctxt.getContentResolver().update(uri, singleRecipe, null, null);
     }
 }

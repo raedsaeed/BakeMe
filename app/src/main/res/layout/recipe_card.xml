@@ -41,8 +41,8 @@
             app:layout_constraintTop_toTopOf="@+id/card_image_iv"
             tools:text="Serves: 4" />
 
-        <ImageButton
-            android:id="@+id/favourite_ib"
+        <CheckBox
+            android:id="@+id/recipe_favourite_cb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin"
@@ -50,7 +50,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:background="@android:color/transparent"
             app:layout_constraintTop_toTopOf="@+id/card_name_tv"
-            android:src="@drawable/ic_favorite"
+            android:button="@drawable/favourite_selector"
             android:layout_marginRight="@dimen/margin"
             android:contentDescription="@string/favourited_recipe"/>
 

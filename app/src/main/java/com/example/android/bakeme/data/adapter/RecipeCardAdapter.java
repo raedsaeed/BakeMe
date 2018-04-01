@@ -5,14 +5,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Steps;
-import com.example.android.bakeme.utils.RecipeUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -47,7 +47,8 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
 
     public interface RecipeClickHandler {
         void onClick(Recipe recipe);
-        void onFavClick(Recipe recipe, int recipePostion);
+
+        void onFavClick(Recipe recipe, int recipePosition, boolean isChecked);
     }
 
     /**
@@ -97,9 +98,11 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
 
         holder.cardNameTv.setText(currentRecipe.getName());
 
-        boolean isFavourited = currentRecipe.getFavourited() == R.integer.is_favourited;
-        RecipeUtils.setfavButton(isFavourited, holder.favouriteIb, ctxt);
-
+        if (currentRecipe.isFavourited()) {
+            holder.favouriteCb.setChecked(true);
+        } else {
+            holder.favouriteCb.setChecked(false);
+        }
     }
 
     /**
@@ -129,23 +132,32 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
         TextView cardNameTv;
         @BindView(R.id.card_serving_tv)
         TextView cardServingTv;
-        @BindView(R.id.favourite_ib)
-        ImageButton favouriteIb;
+        @BindView(R.id.recipe_favourite_cb)
+        CheckBox favouriteCb;
 
         /**
          * super constructor
          *
          * @param itemView is the holder in question.
          */
-        RecipeCardHolder(View itemView) {
+        RecipeCardHolder(final View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
-            favouriteIb.setOnClickListener(new View.OnClickListener() {
+//            favouriteCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//                @Override
+//                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                    Recipe currentRecipe = recipeList.get(getAdapterPosition());
+//                     recipeClicker.onFavClick(currentRecipe, getAdapterPosition(), isChecked);
+//                }
+//            });
+
+            favouriteCb.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Recipe currentRecipe = recipeList.get(getAdapterPosition());
-                    recipeClicker.onFavClick(currentRecipe, getAdapterPosition());
+                    boolean checked = ((CheckBox)v).isChecked();
+                    recipeClicker.onFavClick(currentRecipe, getAdapterPosition(), checked);
                 }
             });
         }
@@ -158,7 +170,7 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
         @Override
         public void onClick(View v) {
             Recipe currentRecipe = recipeList.get(getAdapterPosition());
-                recipeClicker.onClick(currentRecipe);
+            recipeClicker.onClick(currentRecipe);
         }
     }
 }

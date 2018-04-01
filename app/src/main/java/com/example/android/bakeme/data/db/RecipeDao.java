@@ -12,7 +12,9 @@ import com.example.android.bakeme.data.Recipe.Ingredients;
 import java.util.List;
 
 import static com.example.android.bakeme.data.Recipe.*;
+import static com.example.android.bakeme.data.Recipe.Ingredients.INGREDIENTS_ASSOCIATED_RECIPE;
 import static com.example.android.bakeme.data.Recipe.Ingredients.TABLE_INGREDIENTS;
+import static com.example.android.bakeme.data.Recipe.Steps.STEPS_ASSOCIATED_RECIPE;
 import static com.example.android.bakeme.data.Recipe.Steps.TABLE_STEPS;
 
 /**
@@ -71,16 +73,16 @@ public interface RecipeDao {
      *
      * @return cursor with all ingredients stored in the db
      */
-    @Query("SELECT * FROM " + TABLE_INGREDIENTS)
-    Cursor QueryAllIngredients();
+    @Query("SELECT * FROM " + TABLE_INGREDIENTS + " WHERE " + INGREDIENTS_ASSOCIATED_RECIPE + " = :recipeId")
+    Cursor QueryAllIngredients(long recipeId);
 
     /**
      * Query all steps to display
      *
      * @return cursor with all steps stored in the db
      */
-    @Query("SELECT * FROM " + TABLE_STEPS)
-    Cursor QueryAllSteps();
+    @Query("SELECT * FROM " + TABLE_STEPS + " WHERE " + STEPS_ASSOCIATED_RECIPE + "= :recipeId")
+    Cursor QueryAllSteps(long recipeId);
 
     //we don't need to query single recipes, ingredients or steps
 

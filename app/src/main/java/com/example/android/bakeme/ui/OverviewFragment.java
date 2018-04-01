@@ -8,7 +8,8 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
@@ -36,7 +37,6 @@ public class OverviewFragment extends Fragment {
 
     //Adapters for displaying the ingredients and steps of the recipe in question.
     IngredientAdapter ingredientAdapter;
-    IngredientAdapter.IngredientViewHolder ingredientViewHolder;
     StepAdapter stepAdapter;
 
     //views
@@ -45,8 +45,8 @@ public class OverviewFragment extends Fragment {
     @BindView(R.id.recipe_steps_rv)
     RecyclerView stepRv;
 
-    @BindView(R.id.fav_button_ib)
-    ImageButton favButtonIb;
+    @BindView(R.id.overview_favourite_cb)
+    CheckBox favButtonCb;
 
     public OverviewFragment() {
         //required empty constructor
@@ -78,21 +78,27 @@ public class OverviewFragment extends Fragment {
             stepAdapter.notifyDataSetChanged();
         }
 
-        RecipeUtils.setfavButton(isFavourited, favButtonIb, getActivity());
-        favButtonIb.setOnClickListener(new View.OnClickListener() {
+        if (selectedRecipe.isFavourited()) {
+           favButtonCb.setChecked(true);
+           Timber.v("favourite = true");
+        } else {
+            favButtonCb.setChecked(false);
+            Timber.v("favourite = false");
+        }
+
+        favButtonCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                if (isFavourited) {
-                    selectedRecipe.setFavourited(R.integer.not_favourited);
-                    isFavourited = false;
-                    ingredientAdapter.setOfferCheckBoxes(false);
-                } else {
-                    selectedRecipe.setFavourited(R.integer.is_favourited);
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    selectedRecipe.setFavourited(true);
                     isFavourited = true;
                     ingredientAdapter.setOfferCheckBoxes(true);
+                } else {
+                    selectedRecipe.setFavourited(false);
+                    isFavourited = false;
+                    ingredientAdapter.setOfferCheckBoxes(false);
                 }
                 ingredientAdapter.notifyDataSetChanged();
-                RecipeUtils.setfavButton(isFavourited, favButtonIb, getActivity());
                 RecipeUtils.updateFavDb(selectedRecipe, getActivity());
             }
         });

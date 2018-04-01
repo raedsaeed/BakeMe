@@ -79,10 +79,10 @@ public class Recipe implements Parcelable {
 
     //not part of the api, but used to track favourited recipes for the widget
     @ColumnInfo(name = RECIPE_FAVOURITED)
-    private int favourited;
+    private boolean favourited;
 
     @Ignore
-    public Recipe(int id, String image, String name, int servings, int favourited) {
+    public Recipe(int id, String image, String name, int servings, boolean favourited) {
         this.id = id;
         this.image = image;
         this.name = name;
@@ -116,7 +116,7 @@ public class Recipe implements Parcelable {
             recipe.name = values.getAsString(RECIPE_NAME);
         }
         if (values.containsKey(RECIPE_FAVOURITED)) {
-            recipe.favourited = values.getAsInteger(RECIPE_FAVOURITED);
+            recipe.favourited = values.getAsBoolean(RECIPE_FAVOURITED);
         }
         return recipe;
     }
@@ -126,7 +126,9 @@ public class Recipe implements Parcelable {
         servings = in.readInt();
         name = in.readString();
         id = in.readInt();
-        favourited = in.readInt();
+        favourited = in.readByte() != 0;
+        stepsTracker = in.readString();
+        ingredientsTracker = in.readString();
 
         //inner classes
         ingredients = new ArrayList<>();
@@ -196,11 +198,11 @@ public class Recipe implements Parcelable {
         this.id = id;
     }
 
-    public int getFavourited() {
+    public boolean isFavourited() {
         return favourited;
     }
 
-    public void setFavourited(int favourited) {
+    public void setFavourited(boolean favourited) {
         this.favourited = favourited;
     }
 
@@ -231,7 +233,9 @@ public class Recipe implements Parcelable {
         dest.writeInt(servings);
         dest.writeString(name);
         dest.writeLong(id);
-        dest.writeInt((favourited));
+        dest.writeByte((byte) (favourited ? 1 : 0));
+        dest.writeString(stepsTracker);
+        dest.writeString(ingredientsTracker);
 
         //inner classes
         dest.writeList(ingredients);
@@ -244,6 +248,7 @@ public class Recipe implements Parcelable {
 
         public static final String TABLE_STEPS = "steps";
         public static final String STEPS_ID = "id";
+        public static final String STEPS_GLOBAL_ID = "globalId";
         public static final String STEPS_THUMB = "thumbnailURL";
         public static final String STEPS_VIDEO = "videoURL";
         public static final String STEPS_DESCRIP = "description";
@@ -273,11 +278,15 @@ public class Recipe implements Parcelable {
         @ColumnInfo(name = STEPS_ASSOCIATED_RECIPE)
         private long associatedRecipe;
 
-        @PrimaryKey
         @ColumnInfo(index = true, name = STEPS_ID)
         @Expose
         @SerializedName(STEPS_ID)
         private long id;
+
+        @PrimaryKey(autoGenerate = true)
+        @ColumnInfo(index = true, name = STEPS_GLOBAL_ID)
+        private long globalId;
+
 
         public Steps() {
         }
@@ -312,6 +321,9 @@ public class Recipe implements Parcelable {
             if (values.containsKey(STEPS_ASSOCIATED_RECIPE)) {
                 steps.associatedRecipe = values.getAsLong(STEPS_ASSOCIATED_RECIPE);
             }
+            if (values.containsKey(STEPS_GLOBAL_ID)) {
+                steps.globalId = values.getAsLong(STEPS_GLOBAL_ID);
+            }
             return steps;
         }
 
@@ -322,6 +334,7 @@ public class Recipe implements Parcelable {
             shortDescription = in.readString();
             id = in.readLong();
             associatedRecipe = in.readLong();
+            globalId = in.readLong();
         }
 
         public static final Creator<Steps> CREATOR = new Creator<Steps>() {
@@ -384,6 +397,14 @@ public class Recipe implements Parcelable {
             this.associatedRecipe = associatedRecipe;
         }
 
+        public long getGlobalId() {
+            return globalId;
+        }
+
+        public void setGlobalId(long globalId) {
+            this.globalId = globalId;
+        }
+
         @Override
         public int describeContents() {
             return 0;
@@ -397,6 +418,7 @@ public class Recipe implements Parcelable {
             dest.writeString(shortDescription);
             dest.writeLong(id);
             dest.writeLong(associatedRecipe);
+            dest.writeLong(globalId);
         }
     }
 
@@ -435,13 +457,14 @@ public class Recipe implements Parcelable {
 
         //not part of the api, but used to track selected ingredients for the widget
         @ColumnInfo(name = INGREDIENTS_CHECKED)
-        private int checked;
+        private boolean checked;
 
         public Ingredients() {
         }
 
         @Ignore
-        public Ingredients(long id, String ingredient, String measure, double quantity, int checked) {
+        public Ingredients(long id, String ingredient, String measure, double quantity,
+                           boolean checked) {
             this.id = id;
             this.ingredient = ingredient;
             this.measure = measure;
@@ -456,7 +479,6 @@ public class Recipe implements Parcelable {
             this.ingredient = ingredient;
             this.measure = measure;
             this.quantity = quantity;
-            this.checked = checked;
             this.associatedRecipe = associatedRecipe;
         }
 
@@ -475,7 +497,7 @@ public class Recipe implements Parcelable {
                 ingredients.quantity = values.getAsDouble(INGREDIENTS_QUANTITY);
             }
             if (values.containsKey(INGREDIENTS_CHECKED)) {
-                ingredients.checked = values.getAsInteger(INGREDIENTS_CHECKED);
+                ingredients.checked = values.getAsBoolean(INGREDIENTS_CHECKED);
             }
             if ( values.containsKey(INGREDIENTS_ASSOCIATED_RECIPE)) {
                 ingredients.associatedRecipe = values.getAsLong(INGREDIENTS_ASSOCIATED_RECIPE);
@@ -487,7 +509,7 @@ public class Recipe implements Parcelable {
             ingredient = in.readString();
             measure = in.readString();
             quantity = in.readDouble();
-            checked = in.readInt();
+            checked = in.readByte() != 0;
             associatedRecipe = in.readLong();
         }
 
@@ -496,7 +518,7 @@ public class Recipe implements Parcelable {
             dest.writeString(ingredient);
             dest.writeString(measure);
             dest.writeDouble(quantity);
-            dest.writeInt(checked);
+            dest.writeByte((byte) (checked ? 1 : 0));
             dest.writeLong(associatedRecipe);
         }
 
@@ -549,11 +571,11 @@ public class Recipe implements Parcelable {
             this.id = id;
         }
 
-        public int getChecked() {
+        public boolean isChecked() {
             return checked;
         }
 
-        public void setChecked(int checked) {
+        public void setChecked(boolean checked) {
             this.checked = checked;
         }
 

@@ -16,6 +16,7 @@ import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
 import com.example.android.bakeme.data.Recipe.Steps;
+import com.example.android.bakeme.utils.RecipeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,10 +107,10 @@ public class RecipeProvider extends ContentProvider {
                 csr = recipeDao.QueryAllRecipes();
                 break;
             case INGREDIENTS_LIST:
-                csr = recipeDao.QueryAllIngredients();
+                csr = recipeDao.QueryAllIngredients(RecipeUtils.getCurrentRecipeId());
                 break;
             case STEPS_LIST:
-                csr = recipeDao.QueryAllSteps();
+                csr = recipeDao.QueryAllSteps(RecipeUtils.getCurrentRecipeId());
                 break;
             default:
                 throw new IllegalArgumentException("Unknown uri, which cannot be queried: " + uri);
@@ -171,7 +172,6 @@ public class RecipeProvider extends ContentProvider {
             case STEPS_LIST:
                 long stepsId = recipeDao.insertStep(Steps.fromContentValues(values));
                 getContext().getContentResolver().notifyChange(uri, null);
-                Timber.v("step inserted :"+ stepsId);
                 return ContentUris.withAppendedId(uri, stepsId);
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -192,6 +192,7 @@ public class RecipeProvider extends ContentProvider {
                 Recipe recipe = Recipe.fromContentValues(values);
                 int countRecipe = recipeDao.updateRecipe(recipe);
                 getContext().getContentResolver().notifyChange(uri, null);
+                Timber.v("recipe update: " + countRecipe);
                 return countRecipe;
             case INGREDIENTS_ENTRY:
                 Ingredients ingredient = Ingredients.fromContentValues(values);

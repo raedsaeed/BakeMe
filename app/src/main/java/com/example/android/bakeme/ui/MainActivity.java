@@ -1,5 +1,6 @@
 package com.example.android.bakeme.ui;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -84,6 +85,12 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
             getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
                     MainActivity.this);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getSupportLoaderManager().restartLoader(RECIPE_LOADER,null, this);
 
     }
 
@@ -103,7 +110,6 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
             call.enqueue(new Callback<List<Recipe>>() {
                 @Override
                 public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
-                    recipeList = new ArrayList<>();
                     if (response.isSuccessful()) {
                         //retrieve data and send to adapter to display
                         List<Recipe> recipes = response.body();
@@ -179,17 +185,18 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         openDetailActivity.putExtra(String.valueOf(R.string.SELECTED_RECIPE), selectedRecipe);
 
         startActivity(openDetailActivity);
-
     }
 
     @Override
-    public void onFavClick(Recipe recipe, int recipePosition) {
-        if (recipe.getFavourited() == R.integer.is_favourited) {
-            recipe.setFavourited(R.integer.not_favourited);
+    public void onFavClick(Recipe recipe, int recipePosition, boolean isChecked) {
+        ContentValues values = new ContentValues();
+        if (isChecked) {
+            values.put(Recipe.RECIPE_FAVOURITED, R.integer.is_checked);
         } else {
-            recipe.setFavourited(R.integer.is_favourited);
+            values.put(Recipe.RECIPE_FAVOURITED, R.integer.not_checked);
         }
         RecipeUtils.updateFavDb(recipe, this);
+        getSupportLoaderManager().restartLoader(RECIPE_LOADER, null, this);
         recipeCardAdapter.notifyItemChanged(recipePosition);
     }
 
@@ -228,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                 String image = data.getString((data.getColumnIndex(RECIPE_IMAGE)));
                 String name = data.getString(data.getColumnIndex(RECIPE_NAME));
                 int servings = data.getInt(data.getColumnIndex(RECIPE_SERVINGS));
-                int favourited = data.getInt(data.getColumnIndex(RECIPE_FAVOURITED));
+                boolean favourited = data.getInt(data.getColumnIndex(RECIPE_FAVOURITED)) != 0;
                 recipeList.add(new Recipe(id, image, name, servings, favourited));
             }
             data.close();

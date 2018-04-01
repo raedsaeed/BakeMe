@@ -18,13 +18,18 @@ import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
 import com.example.android.bakeme.data.Recipe.Steps;
 import com.example.android.bakeme.data.adapter.StepAdapter;
+import com.example.android.bakeme.data.db.RecipeDao;
+import com.example.android.bakeme.data.db.RecipeDatabase;
 import com.example.android.bakeme.data.db.RecipeProvider;
 import com.example.android.bakeme.utils.RecipeUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import timber.log.Timber;
+
+import static com.example.android.bakeme.data.Recipe.RECIPE_FAVOURITED;
 
 public class DetailActivity extends AppCompatActivity implements StepAdapter.StepClickHandler,
         LoaderManager.LoaderCallbacks<Cursor> {
@@ -43,7 +48,7 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
     private static final int INGREDIENTS_LOADER = 2;
     private static final int STEPS_LOADER = 3;
 
-    Menu menu;
+    RecipeDao recipeDao;
 
     static ArrayList<Ingredients> ingredientsList;
     static ArrayList<Steps> stepsList;
@@ -63,6 +68,8 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
         //instantiate lists ready to retrieve the provided information for each.
         ingredientsList = new ArrayList<>();
         stepsList = new ArrayList<>();
+
+        recipeDao = RecipeDatabase.getRecipeDbInstance(this).recipeDao();
 
         fragMan = getSupportFragmentManager();
 
@@ -101,6 +108,14 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
 
         getSupportActionBar().setTitle(selectedRecipe.getName());
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getSupportLoaderManager().restartLoader(RECIPE_LOADER, null, this);
+        getSupportLoaderManager().restartLoader(INGREDIENTS_LOADER, null, this);
+        //no updates to be expected on the step list.
     }
 
     @Override
@@ -167,11 +182,13 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+
         Uri uri = null;
         String[] projection = new String[0];
         String selection = null;
         String[] selectionArgs = new String[0];
         long selectedRecipeId = selectedRecipe.getId();
+        RecipeUtils.setCurrentRecipeId(selectedRecipeId);
         switch (id) {
             case RECIPE_LOADER:
                 uri = RecipeProvider.CONTENT_URI_RECIPE;
@@ -197,12 +214,7 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
         switch (loader.getId()) {
             case RECIPE_LOADER:
                 data.moveToFirst();
-                int favourited = data.getInt(data.getColumnIndex(Recipe.RECIPE_FAVOURITED));
-                if (favourited == getResources().getInteger(R.integer.is_favourited)) {
-                    isFavourited = true;
-                } else {
-                    isFavourited = false;
-                }
+                isFavourited = data.getInt(data.getColumnIndex(RECIPE_FAVOURITED)) != 0;
                 break;
             case INGREDIENTS_LOADER:
                 data.moveToFirst();
