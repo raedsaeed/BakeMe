@@ -4,11 +4,14 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +19,8 @@ import android.os.Bundle;
 import android.support.v7.content.res.AppCompatResources;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageButton;
 
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
@@ -26,6 +31,7 @@ import com.example.android.bakeme.data.db.RecipeProvider;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 
@@ -39,6 +45,7 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
 
     //booleans to track layout
     public static boolean twoPane;
+    private boolean isFavourited;
 
     //Loader constants
     private static final int RECIPE_LOADER = 1;
@@ -120,7 +127,6 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
             methodFrag.setStep(step);
             methodFrag.setRecipe(selectedRecipe);
             methodFrag.setStepsList(stepsList);
-            //methodFrag.setTwoPane(twoPane);
 
             fragMan.beginTransaction().replace(R.id.detail_fragment_container2, methodFrag)
                     .addToBackStack(null).commit();
@@ -137,37 +143,6 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        this.menu = menu;
-
-        getMenuInflater().inflate(R.menu.favourite_bt, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.favourite_menu) {
-            if (selectedRecipe.getFavourited() == getResources().getInteger(R.integer.is_favourited)) {
-                menu.getItem(0).setIcon(AppCompatResources
-                        .getDrawable(this, android.R.drawable.btn_star_big_off));
-                selectedRecipe.setFavourited(getResources().getInteger(R.integer.not_favourited));
-            } else {
-                menu.getItem(0).setIcon(AppCompatResources
-                        .getDrawable(this, android.R.drawable.btn_star_big_on));
-                selectedRecipe.setFavourited(getResources().getInteger(R.integer.is_favourited));
-            }
-            //create uri referencing the recipe's id
-            Uri uri = ContentUris.withAppendedId(RecipeProvider.CONTENT_URI_RECIPE,
-                    selectedRecipe.getId());
-            //store changed favourite selection to the db.
-            ContentValues values = new ContentValues();
-            values.put(Recipe.RECIPE_FAVOURITED, selectedRecipe.getFavourited());
-            getContentResolver().update(uri, values, null, null);
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     // see: https://stackoverflow.com/a/11421298/7601437
     public void loaderHasFinished() {
         completedLoaders++;
@@ -181,6 +156,8 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
         overviewFrag = new OverviewFragment();
         overviewFrag.setIngredientsList(ingredientsList);
         overviewFrag.setStepsList(stepsList);
+        overviewFrag.setFavourited(isFavourited);
+        overviewFrag.setSelectedRecipe(selectedRecipe);
 
         fragMan.beginTransaction().add(R.id.detail_fragment_container1, overviewFrag)
                 .addToBackStack(null).commit();
@@ -231,11 +208,9 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
                 data.moveToFirst();
                 int favourited = data.getInt(data.getColumnIndex(Recipe.RECIPE_FAVOURITED));
                 if (favourited == getResources().getInteger(R.integer.is_favourited)) {
-                    menu.getItem(0).setIcon(AppCompatResources
-                            .getDrawable(this, android.R.drawable.btn_star_big_on));
+                    isFavourited = true;
                 } else {
-                    menu.getItem(0).setIcon(AppCompatResources
-                            .getDrawable(this, android.R.drawable.btn_star_big_off));
+                    isFavourited = false;
                 }
                 break;
             case INGREDIENTS_LOADER:

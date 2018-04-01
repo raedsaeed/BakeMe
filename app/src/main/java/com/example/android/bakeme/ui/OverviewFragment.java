@@ -2,17 +2,21 @@ package com.example.android.bakeme.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.adapter.IngredientAdapter;
 import com.example.android.bakeme.data.adapter.StepAdapter;
+import com.example.android.bakeme.utils.RecipeUtils;
 
 import java.util.ArrayList;
 
@@ -29,8 +33,10 @@ public class OverviewFragment extends Fragment {
     // lists for the recipe in question.
     ArrayList<Recipe.Ingredients> ingredientsList;
     ArrayList<Recipe.Steps> stepsList;
+    boolean isFavourited;
+    Recipe selectedRecipe;
 
-    //Adapters for displaying the ingredients and steps recipe in question.
+    //Adapters for displaying the ingredients and steps of the recipe in question.
     IngredientAdapter ingredientAdapter;
     StepAdapter stepAdapter;
 
@@ -40,10 +46,12 @@ public class OverviewFragment extends Fragment {
     @BindView(R.id.recipe_steps_rv)
     RecyclerView stepRv;
 
+    @BindView(R.id.fav_button_ib)
+    ImageButton favButtonIb;
+
     public OverviewFragment() {
         //required empty constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -70,7 +78,32 @@ public class OverviewFragment extends Fragment {
             stepAdapter.notifyDataSetChanged();
         }
 
+        RecipeUtils.setfavButton(isFavourited, favButtonIb, getActivity());
+        favButtonIb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isFavourited) {
+                    selectedRecipe.setFavourited(R.integer.not_favourited);
+                } else {
+                    selectedRecipe.setFavourited(R.integer.is_favourited);
+                }
+                RecipeUtils.setfavButton(isFavourited, favButtonIb, getActivity());
+                RecipeUtils.updateFavDb(selectedRecipe, getActivity());
+            }
+        });
+
         return root;
+    }
+
+    private void setfavButton() {
+        int color = 0;
+        if (isFavourited) {
+            color = R.color.colorAccent;
+        } else {
+            color = R.color.colorUnselected;
+        }
+        DrawableCompat.setTint(favButtonIb.getDrawable(),
+                ContextCompat.getColor(getActivity(), color));
     }
 
     @Override
@@ -86,5 +119,13 @@ public class OverviewFragment extends Fragment {
 
     public void setStepsList(ArrayList<Recipe.Steps> stepsList) {
         this.stepsList = stepsList;
+    }
+
+    public void setFavourited(boolean favourited) {
+        isFavourited = favourited;
+    }
+
+    public void setSelectedRecipe(Recipe selectedRecipe) {
+        this.selectedRecipe = selectedRecipe;
     }
 }

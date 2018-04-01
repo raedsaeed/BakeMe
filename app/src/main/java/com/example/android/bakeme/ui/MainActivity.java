@@ -108,6 +108,10 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         //retrieve data and send to adapter to display
                         List<Recipe> recipes = response.body();
                         recipeList.addAll(recipes);
+                        RecipeUtils.writeRecipesToRoom(recipeList, MainActivity.this);
+                        setAdapter(MainActivity.this, recipeList, MainActivity.this);
+
+                        //create arrayList and instance for both Ingredients and Steps.
                         ArrayList<Ingredients> ingredientsList = new ArrayList<>();
                         Ingredients currentIngredient = new Ingredients();
 
@@ -115,21 +119,21 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         Steps currentSteps = new Steps();
 
                         for (Recipe recipe: response.body()) {
-                            recipeList.add(recipe);
-                            RecipeUtils.writeRecipesToRoom(recipeList, MainActivity.this);
 
                             currentIngredient.setAssociatedRecipe(recipe.getId());
                             ingredientsList.addAll(recipe.getIngredients());
                             RecipeUtils.writeIngredientsToRoom(ingredientsList,
                                     MainActivity.this);
+                            ingredientsList.clear(); //ready for the next recipe
 
                             currentSteps.setAssociatedRecipe(recipe.getId());
                             stepsList.addAll(recipe.getSteps());
                             RecipeUtils.writeStepsToRoom(stepsList, MainActivity.this);
+                            stepsList.clear(); // ready for the next recipe
                         }
 
                         Timber.v("recipe list size :%s", recipeList.size());
-                        setAdapter(MainActivity.this, recipeList, MainActivity.this);
+
 
                     } else {
                         //write error to log as a warning

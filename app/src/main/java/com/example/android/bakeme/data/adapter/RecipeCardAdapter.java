@@ -1,18 +1,18 @@
 package com.example.android.bakeme.data.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Steps;
+import com.example.android.bakeme.utils.RecipeUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -70,15 +70,14 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
      * @param position within the adapter.
      */
     @Override
-    public void onBindViewHolder(RecipeCardHolder holder, int position) {
-        Recipe currentRecipe = this.recipeList.get(position);
+    public void onBindViewHolder(final RecipeCardHolder holder, int position) {
+        final Recipe currentRecipe = this.recipeList.get(position);
 
         long recipeId = currentRecipe.getId();
-
         List<Steps> currentStep = currentRecipe.getSteps();
 
-//         currently there are no images available in the api, but assuming it would be updated at
-//         some point this code will display the image or a thumbnail.
+        //currently there are no images available in the api, but assuming it would be updated at
+        //some point this code will display the image or a thumbnail.
         String recipeImage = null;
         //get image if available
         if (!currentRecipe.getImage().isEmpty()) {
@@ -86,16 +85,6 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
 
             //if there is no image, get the last thumbnail in the list
         }
-//        else if (currentRecipe.getImage().isEmpty()) {
-//            for (int i = currentStep.size() - 1; i > 1; i--) {
-//                Steps lastStep = currentStep.get(i);
-//                recipeImage = lastStep.getThumbnail();
-//                if (!recipeImage.isEmpty()) break;
-//            }
-//            //if there are not thumbnails set image to null so app icon is shown
-//            assert recipeImage != null;
-//            if (recipeImage.isEmpty()) recipeImage = null;
-//        }
 
         Picasso.with(ctxt).load(recipeImage)
                 .placeholder(R.drawable.ic_launcher_foreground)
@@ -107,14 +96,6 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
 
         holder.cardNameTv.setText(currentRecipe.getName());
 
-        //reflect whether recipe has been favourited
-        Drawable favStar;
-        if (currentRecipe.getFavourited() == ctxt.getResources().getInteger(R.integer.is_favourited)) {
-            favStar = AppCompatResources.getDrawable(ctxt, android.R.drawable.btn_star_big_on);
-        } else {
-            favStar = AppCompatResources.getDrawable(ctxt, android.R.drawable.btn_star_big_off);
-        }
-        Picasso.with(ctxt).load(String.valueOf(favStar)).into(holder.favouriteIv);
     }
 
     /**
@@ -144,8 +125,10 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
         TextView cardNameTv;
         @BindView(R.id.card_serving_tv)
         TextView cardServingTv;
-        @BindView(R.id.favourite_iv)
-        ImageView favouriteIv;
+        @BindView(R.id.favourite_ib)
+        ImageButton favouriteIb;
+
+        private boolean isFavourited;
 
         /**
          * super constructor
@@ -156,6 +139,7 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
             super(itemView);
             ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
+            favouriteIb.setOnClickListener(this);
         }
 
         /**
@@ -166,7 +150,20 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
         @Override
         public void onClick(View v) {
             Recipe currentRecipe = recipeList.get(getAdapterPosition());
-            recipeClicker.onClick(currentRecipe);
+
+            if (v.getId() == itemView.getId()) {
+                currentRecipe = recipeList.get(getAdapterPosition());
+                recipeClicker.onClick(currentRecipe);
+            } else if (v.getId() == favouriteIb.getId()) {
+
+                if (isFavourited) {
+                    isFavourited = false;
+                } else{
+                    isFavourited = true;
+                }
+                RecipeUtils.setfavButton(isFavourited, favouriteIb, ctxt);
+                RecipeUtils.updateFavDb(currentRecipe, ctxt);
+            }
         }
     }
 }

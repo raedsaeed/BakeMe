@@ -1,28 +1,21 @@
 package com.example.android.bakeme.utils;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.net.Uri;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.widget.ImageButton;
 
-import com.example.android.bakeme.BuildConfig;
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
 import com.example.android.bakeme.data.Recipe.Steps;
-import com.example.android.bakeme.data.api.ApiClient;
-import com.example.android.bakeme.data.api.ApiInterface;
 import com.example.android.bakeme.data.db.RecipeProvider;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import timber.log.Timber;
 
 /**
  * Methods enabling the storing of the recipe information.
@@ -85,4 +78,26 @@ public class RecipeUtils {
             ctxt.getContentResolver().insert(RecipeProvider.CONTENT_URI_STEPS, setOfSteps);
         }
     }
+
+    public static void updateFavDb(Recipe selectedRecipe, Context ctxt) {
+        //create uri referencing the recipe's id
+        Uri uri = ContentUris.withAppendedId(RecipeProvider.CONTENT_URI_RECIPE,
+                selectedRecipe.getId());
+
+        //store changed favourite selection to the db.
+        ContentValues values = new ContentValues();
+        values.put(Recipe.RECIPE_FAVOURITED, selectedRecipe.getFavourited());
+        ctxt.getContentResolver().update(uri, values, null, null);
+    }
+
+    public static void setfavButton(boolean isFavourited, ImageButton favButtonIb, Context ctxt) {
+        int color = 0;
+            if (isFavourited) {
+                color = R.color.colorAccent;
+            } else {
+                color = R.color.colorUnselected;
+            }
+            DrawableCompat.setTint(favButtonIb.getDrawable(),
+                    ContextCompat.getColor(ctxt, color));
+        }
 }
