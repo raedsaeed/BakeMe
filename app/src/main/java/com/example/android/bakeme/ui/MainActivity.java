@@ -25,6 +25,7 @@ import android.view.View;
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.RecipeIdlingResource;
 import com.example.android.bakeme.data.Recipe;
+import com.example.android.bakeme.data.adapter.IngredientAdapter;
 import com.example.android.bakeme.data.adapter.RecipeCardAdapter;
 import com.example.android.bakeme.data.api.ApiClient;
 import com.example.android.bakeme.data.api.ApiInterface;
@@ -102,9 +103,54 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
             mainBinder.alertView.alertTv.setVisibility(View.GONE);
             mainBinder.alertView.progressPb.setVisibility(View.VISIBLE);
 
-            RecipeUtils.retrieveRecipes(this, mainBinder.alertView.progressPb,
-                    mainBinder.alertView.alertTv);
+            ApiInterface apiCall = ApiClient.getClient().create(ApiInterface.class);
 
+            Call<List<Recipe>> call = apiCall.getRecipes();
+            call.enqueue(new Callback<List<Recipe>>() {
+                @Override
+                public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
+                    recipeList = new ArrayList<>();
+                    if (response.isSuccessful()) {
+                        //retrieve data and send to adapter to display
+                        List<Recipe> recipes = response.body();
+                        recipeList.addAll(recipes);
+
+
+                        for (int i = 0; i <recipeList.size(); i++) {
+                            long recipeId = recipeList.get(i).getId();
+                            RecipeUtils.writeRecipesToRoom(recipeId, recipeList,
+                                    MainActivity.this);
+
+                            List<Ingredients> ingredientsList = recipeList.get(i).getIngredients();
+                            RecipeUtils.writeIngredientsToRoom(recipeId, ingredientsList,
+                                    MainActivity.this);
+
+                            List<Steps> stepsList = recipeList.get(i).getSteps();
+                            RecipeUtils.writeStepsToRoom(recipeId, stepsList,
+                                    MainActivity.this);
+
+                        }
+                        Timber.v("recipe list size :%s", recipeList.size());
+                        setAdapter(MainActivity.this, recipeList, MainActivity.this);
+
+
+
+                    } else {
+                        //write error to log as a warning
+                        Timber.w("HTTP status code: %s", response.code());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<Recipe>> call, Throwable t) {
+                    //write error to log
+                    Timber.e(t.toString());
+                    mainBinder.alertView.progressPb.setVisibility(View.GONE);
+                    mainBinder.alertView.alertTv.setVisibility(View.VISIBLE);
+                    mainBinder.alertView.alertTv.setText(R.string.no_internet);
+                }
+            });
+        } else {
             getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
                     MainActivity.this);
         }
