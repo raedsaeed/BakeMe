@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         for (Recipe recipe: response.body()) {
                             long recipeId = recipe.getId();
                             //get this recipe's ingredients from the response and write them to room.
-                            currentIngredient.setAssociatedRecipe(recipeId);
+                            currentIngredient.setAssociatedRecipe(recipeId); //TODO: debugger "0, null, null" ?!
                             ingredientsList.addAll(recipe.getIngredients());
                             RecipeUtils.writeIngredientsToRoom(ingredientsList,
                                     MainActivity.this);
