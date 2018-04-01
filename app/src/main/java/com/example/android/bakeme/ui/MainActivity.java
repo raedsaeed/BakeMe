@@ -123,16 +123,19 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         for (Recipe recipe: response.body()) {
                             recipeList.add(recipe);
                             RecipeUtils.writeRecipesToRoom(recipeList, MainActivity.this);
+                            Timber.v("recipes collected: " + recipeList.size());
 
                             currentIngredient.setAssociatedRecipe(recipe.getId());
                             ingredientsList.addAll(recipe.getIngredients());
                             RecipeUtils.writeIngredientsToRoom(ingredientsList,
                                     MainActivity.this);
+                            Timber.v("ingredients collected: " + ingredientsList.size());
 
                             currentSteps.setAssociatedRecipe(recipe.getId());
                             stepsList.addAll(recipe.getSteps());
                             RecipeUtils.writeStepsToRoom(stepsList,
                                     MainActivity.this);
+                            Timber.v("steps collected: " + stepsList.size());
                         }
 
 //                        for (int i = 0; i <recipeList.size(); i++) {

@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.android.bakeme.BuildConfig;
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
@@ -79,8 +80,7 @@ public class RecipeUtils {
             setOfSteps.put(Steps.STEPS_SHORT_DESCRIPTION,
                     receivedSteps.getShortDescription());
             setOfSteps.put(Steps.STEPS_DESCRIPTION, receivedSteps.getDescription());
-            setOfSteps.put(Steps.STEPS_ASSOCIATED_RECIPE,
-                    Recipe.ASSOCIATED_RECIPE +  receivedSteps.getAssociatedRecipe());
+            setOfSteps.put(Steps.STEPS_ASSOCIATED_RECIPE, receivedSteps.getAssociatedRecipe());
 
             ctxt.getContentResolver().insert(RecipeProvider.CONTENT_URI_STEPS, setOfSteps);
         }

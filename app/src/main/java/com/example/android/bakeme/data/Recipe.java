@@ -298,9 +298,9 @@ public class Recipe implements Parcelable {
 
         public static Steps fromContentValues(ContentValues values) {
             Steps steps = new Steps();
-//            if (values.containsKey(STEPS_ID)) {
-//                steps.id = values.getAsInteger(STEPS_ID);
-//            }
+            if (values.containsKey(STEPS_ID)) {
+                steps.id = values.getAsInteger(STEPS_ID);
+            }
             if (values.containsKey(STEPS_THUMBNAIL)) {
                 steps.thumbnail = values.getAsString(STEPS_THUMBNAIL);
             }
