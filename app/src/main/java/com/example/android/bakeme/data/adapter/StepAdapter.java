@@ -24,7 +24,7 @@ public class StepAdapter
 
     final private StepAdapter.StepClickHandler stepClicker;
 
-    //setdata frees up the constructor to be used in DetailActivity.
+    //setData frees up the constructor to be used in DetailActivity.
     // Based on: http://www.i-programmer.info/professional-programmer/accreditation/10908-insiders-guide-to-udacity-android-developer-nanodegree-part-3-the-making-of-baking-app.html?start=1
     public void setData(Context ctxt, ArrayList<Steps> stepsList) {
         this.ctxt = ctxt;

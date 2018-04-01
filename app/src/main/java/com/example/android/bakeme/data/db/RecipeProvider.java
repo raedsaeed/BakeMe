@@ -171,6 +171,7 @@ public class RecipeProvider extends ContentProvider {
             case STEPS_LIST:
                 long stepsId = recipeDao.insertStep(Steps.fromContentValues(values));
                 getContext().getContentResolver().notifyChange(uri, null);
+                Timber.v("step inserted :"+ stepsId);
                 return ContentUris.withAppendedId(uri, stepsId);
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);

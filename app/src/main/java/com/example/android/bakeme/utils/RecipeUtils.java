@@ -6,6 +6,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.util.Log;
 import android.widget.ImageButton;
 
 import com.example.android.bakeme.R;
@@ -16,6 +17,8 @@ import com.example.android.bakeme.data.db.RecipeProvider;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * Methods enabling the storing of the recipe information.
@@ -75,7 +78,8 @@ public class RecipeUtils {
             setOfSteps.put(Steps.STEPS_DESCRIP, receivedSteps.getDescription());
             setOfSteps.put(Steps.STEPS_ASSOCIATED_RECIPE, recipeId);
 
-            ctxt.getContentResolver().insert(RecipeProvider.CONTENT_URI_STEPS, setOfSteps);
+            Uri inserted = ctxt.getContentResolver().insert(RecipeProvider.CONTENT_URI_STEPS, setOfSteps);
+            Timber.v("writing Step to room" + inserted + "; recipe id: " + recipeId);
         }
     }
 

@@ -19,6 +19,7 @@ import com.example.android.bakeme.data.Recipe.Ingredients;
 import com.example.android.bakeme.data.Recipe.Steps;
 import com.example.android.bakeme.data.adapter.StepAdapter;
 import com.example.android.bakeme.data.db.RecipeProvider;
+import com.example.android.bakeme.utils.RecipeUtils;
 
 import java.util.ArrayList;
 
@@ -206,8 +207,9 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
             case INGREDIENTS_LOADER:
                 data.moveToFirst();
                 while (data.moveToNext()) {
-                    long recipeID = data.getLong(data.getColumnIndex(Ingredients.INGREDIENTS_ASSOCIATED_RECIPE));
-                    if (recipeID == selectedRecipe.getId()) {
+                    long recipeId = data.getLong(data.getColumnIndex(Ingredients.INGREDIENTS_ASSOCIATED_RECIPE));
+                    Timber.v("onLoadfinished, ingredients – recipe id: " + recipeId);
+                    if (recipeId == selectedRecipe.getId()) {
                         long id = data.getLong(data.getColumnIndex(Ingredients.INGREDIENTS_ID));
                         String ingredient = data.getString(data.getColumnIndex(Ingredients
                                 .INGREDIENTS_INGREDIENT));
@@ -226,6 +228,7 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
                 data.moveToFirst();
                 while (data.moveToNext()) {
                     long recipeId = data.getLong(data.getColumnIndex(Steps.STEPS_ASSOCIATED_RECIPE));
+                    Timber.v("onLoadfinished, steps – recipe id: " + recipeId);
                     if (recipeId == selectedRecipe.getId()) {
                         long id = data.getLong(data.getColumnIndex(Steps.STEPS_ID));
                         String shortDescrip

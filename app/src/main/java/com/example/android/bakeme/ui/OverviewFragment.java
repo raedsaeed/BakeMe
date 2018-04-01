@@ -59,6 +59,7 @@ public class OverviewFragment extends Fragment {
         ButterKnife.bind(this, root);
 
         Timber.v("ingredients: %s", ingredientsList);
+        Timber.v("steps: %s", stepsList);
 
         //Setup Ingredient adapter
         if (ingredientsList != null) {
