@@ -48,11 +48,11 @@
             android:layout_marginEnd="@dimen/margin"
             app:layout_constraintBottom_toBottomOf="@+id/card_name_tv"
             app:layout_constraintEnd_toEndOf="parent"
+            android:background="@android:color/transparent"
             app:layout_constraintTop_toTopOf="@+id/card_name_tv"
-            app:srcCompat="@android:drawable/btn_star_big_on"
+            app:srcCompat="@android:drawable/btn_star_big_off"
             android:layout_marginRight="@dimen/margin"
-            android:contentDescription="@string/favourited_recipe"
-            android:visibility="gone"/>
+            android:contentDescription="@string/favourited_recipe"/>
 
     </android.support.constraint.ConstraintLayout>
 </layout>

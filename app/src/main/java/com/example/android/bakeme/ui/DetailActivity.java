@@ -1,5 +1,7 @@
 package com.example.android.bakeme.ui;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -39,6 +41,7 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
     public static boolean twoPane;
 
     //Loader constants
+    private static final int RECIPE_LOADER = 1;
     private static final int INGREDIENTS_LOADER = 2;
     private static final int STEPS_LOADER = 3;
 
@@ -46,6 +49,8 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
 
     static ArrayList<Ingredients> ingredientsList;
     static ArrayList<Steps> stepsList;
+    protected int amountOfLoaders = 3;
+    protected int completedLoaders = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,15 +85,17 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
         } else {
             Intent recipeIntent = getIntent();
             Timber.v("recipe Intent: %s", recipeIntent);
-            if (recipeIntent != null && recipeIntent.hasExtra(String
-                    .valueOf(R.string.SELECTED_RECIPE))) {
-                selectedRecipe = recipeIntent.getParcelableExtra(String
-                        .valueOf(R.string.SELECTED_RECIPE));
+            if (recipeIntent != null
+                    && recipeIntent.hasExtra(String.valueOf(R.string.SELECTED_RECIPE))) {
+                selectedRecipe
+                        = recipeIntent.getParcelableExtra(String.valueOf(R.string.SELECTED_RECIPE));
             }
 
             overviewFrag = new OverviewFragment();
             methodFrag = new MethodFragment();
         }
+
+        getSupportLoaderManager().initLoader(RECIPE_LOADER, null, this);
 
         getSupportLoaderManager().initLoader(INGREDIENTS_LOADER, null, this);
 
@@ -96,23 +103,6 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
 
         getSupportActionBar().setTitle(selectedRecipe.getName());
 
-        overviewFrag = new OverviewFragment();
-        overviewFrag.setIngredientsList(ingredientsList);
-        overviewFrag.setStepsList(stepsList);
-
-        fragMan.beginTransaction().add(R.id.detail_fragment_container1, overviewFrag)
-                .addToBackStack(null).commit();
-
-        if (twoPane) {
-            methodFrag = new MethodFragment();
-            methodFrag.setStep(stepsList.get(0));
-            methodFrag.setRecipe(selectedRecipe);
-            methodFrag.setStepsList(stepsList);
-            //methodFrag.setTwoPane(twoPane);
-
-            fragMan.beginTransaction().add(R.id.detail_fragment_container2, methodFrag)
-                    .addToBackStack(null).commit();
-        }
     }
 
     @Override
@@ -161,41 +151,92 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
             if (selectedRecipe.getFavourited() == getResources().getInteger(R.integer.is_favourited)) {
                 menu.getItem(0).setIcon(AppCompatResources
                         .getDrawable(this, android.R.drawable.btn_star_big_off));
-                selectedRecipe.setFavourited(getResources().getInteger(R.integer.not_favourited));//TODO: update db
+                selectedRecipe.setFavourited(getResources().getInteger(R.integer.not_favourited));
             } else {
                 menu.getItem(0).setIcon(AppCompatResources
                         .getDrawable(this, android.R.drawable.btn_star_big_on));
-                selectedRecipe.setFavourited(getResources().getInteger(R.integer.is_favourited));//TODO: update db
+                selectedRecipe.setFavourited(getResources().getInteger(R.integer.is_favourited));
             }
+            //create uri referencing the recipe's id
+            Uri uri = ContentUris.withAppendedId(RecipeProvider.CONTENT_URI_RECIPE,
+                    selectedRecipe.getId());
+            //store changed favourite selection to the db.
+            ContentValues values = new ContentValues();
+            values.put(Recipe.RECIPE_FAVOURITED, selectedRecipe.getFavourited());
+            getContentResolver().update(uri, values, null, null);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    // see: https://stackoverflow.com/a/11421298/7601437
+    public void loaderHasFinished() {
+        completedLoaders++;
+        if (completedLoaders == amountOfLoaders) {
+            setupFragments();
+            completedLoaders = 0;
+        }
+    }
+
+    private void setupFragments() {
+        overviewFrag = new OverviewFragment();
+        overviewFrag.setIngredientsList(ingredientsList);
+        overviewFrag.setStepsList(stepsList);
+
+        fragMan.beginTransaction().add(R.id.detail_fragment_container1, overviewFrag)
+                .addToBackStack(null).commit();
+
+        if (twoPane) {
+            methodFrag = new MethodFragment();
+            methodFrag.setStep(stepsList.get(0));
+            methodFrag.setRecipe(selectedRecipe);
+            methodFrag.setStepsList(stepsList);
+
+            fragMan.beginTransaction().add(R.id.detail_fragment_container2, methodFrag)
+                    .addToBackStack(null).commit();
+        }
     }
 
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         Uri uri = null;
+        String[] projection = new String[0];
         String selection = null;
         String[] selectionArgs = new String[0];
+        long selectedRecipeId = selectedRecipe.getId();
         switch (id) {
+            case RECIPE_LOADER:
+                projection = new String[]{Recipe.RECIPE_FAVOURITED};
+                break;
             case INGREDIENTS_LOADER:
                 selection = Ingredients.INGREDIENTS_ASSOCIATED_RECIPE + "=?";
-                selectionArgs = new String[]{Recipe.RECIPE_ID};
+                selectionArgs = new String[]{String.valueOf(selectedRecipeId)};
                 uri = RecipeProvider.CONTENT_URI_INGREDIENTS;
                 break;
             case STEPS_LOADER:
                 selection = Steps.STEPS_ASSOCIATED_RECIPE + "=?";
-                selectionArgs = new String[]{Recipe.RECIPE_ID};
+                selectionArgs = new String[]{String.valueOf(selectedRecipeId)};
                 uri = RecipeProvider.CONTENT_URI_STEPS;
                 break;
         }
-        return new CursorLoader(this, uri, null, selection, selectionArgs,
+        return new CursorLoader(this, uri, projection, selection, selectionArgs,
                 null);
     }
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         switch (loader.getId()) {
+            case RECIPE_LOADER:
+                data.moveToFirst();
+                int favourited = data.getInt(data.getColumnIndex(Recipe.RECIPE_FAVOURITED));
+                if (favourited == getResources().getInteger(R.integer.is_favourited)) {
+                    menu.getItem(0).setIcon(AppCompatResources
+                            .getDrawable(this, android.R.drawable.btn_star_big_on));
+                } else {
+                    menu.getItem(0).setIcon(AppCompatResources
+                            .getDrawable(this, android.R.drawable.btn_star_big_off));
+                }
+                break;
             case INGREDIENTS_LOADER:
                 data.moveToFirst();
                 while (data.moveToNext()) {
@@ -224,10 +265,13 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
                     String thumbnail = data.getString(data.getColumnIndex(Steps.STEPS_THUMBNAIL));
                     stepsList.add(new Steps(id, shortDescription, description, video, thumbnail));
                 }
+                break;
 
-                data.close();
-                Timber.v("Steplist = " + stepsList.size() + " & ingredientlist = " + ingredientsList.size());
         }
+        data.close();
+
+        //keep track of each loader finishing so the fragments start with all data on hand.
+        loaderHasFinished();
     }
 
     @Override

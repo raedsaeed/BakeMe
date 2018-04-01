@@ -60,14 +60,14 @@ public class Recipe implements Parcelable {
     private String stepsTracker;
     @Ignore
     @Expose
-    @SerializedName("steps")
+    @SerializedName( RECIPE_STEPS)
     private List<Steps> steps;
 
     @ColumnInfo(name = RECIPE_INGREDIENTS)
     private String ingredientsTracker;
     @Ignore
     @Expose
-    @SerializedName("ingredients")
+    @SerializedName(RECIPE_INGREDIENTS)
     private List<Ingredients> ingredients;
 
     @ColumnInfo(name = RECIPE_NAME)
@@ -451,7 +451,6 @@ public class Recipe implements Parcelable {
             this.measure = measure;
             this.quantity = quantity;
             this.checked = checked;
-            this.associatedRecipe = associatedRecipe;
         }
 
         public static Ingredients fromContentValues(ContentValues values) {

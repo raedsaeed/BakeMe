@@ -82,11 +82,9 @@ public class OverviewFragment extends Fragment {
 
     public void setIngredientsList(ArrayList<Recipe.Ingredients> ingredientsList) {
         this.ingredientsList = ingredientsList;
-        ingredientAdapter.notifyDataSetChanged();
     }
 
     public void setStepsList(ArrayList<Recipe.Steps> stepsList) {
         this.stepsList = stepsList;
-        stepAdapter.notifyDataSetChanged();
     }
 }

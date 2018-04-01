@@ -1,6 +1,5 @@
 package com.example.android.bakeme.ui;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -11,7 +10,6 @@ import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
-import android.support.test.espresso.IdlingResource;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -19,21 +17,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.View;
 
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.RecipeIdlingResource;
 import com.example.android.bakeme.data.Recipe;
-import com.example.android.bakeme.data.adapter.IngredientAdapter;
 import com.example.android.bakeme.data.adapter.RecipeCardAdapter;
 import com.example.android.bakeme.data.api.ApiClient;
 import com.example.android.bakeme.data.api.ApiInterface;
-import com.example.android.bakeme.data.db.RecipeDatabase;
 import com.example.android.bakeme.data.db.RecipeProvider;
 import com.example.android.bakeme.databinding.ActivityMainBinding;
 import com.example.android.bakeme.utils.RecipeUtils;
-import com.google.gson.JsonArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,39 +117,19 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         for (Recipe recipe: response.body()) {
                             recipeList.add(recipe);
                             RecipeUtils.writeRecipesToRoom(recipeList, MainActivity.this);
-                            Timber.v("recipes collected: " + recipeList.size());
 
                             currentIngredient.setAssociatedRecipe(recipe.getId());
                             ingredientsList.addAll(recipe.getIngredients());
                             RecipeUtils.writeIngredientsToRoom(ingredientsList,
                                     MainActivity.this);
-                            Timber.v("ingredients collected: " + ingredientsList.size());
 
                             currentSteps.setAssociatedRecipe(recipe.getId());
                             stepsList.addAll(recipe.getSteps());
-                            RecipeUtils.writeStepsToRoom(stepsList,
-                                    MainActivity.this);
-                            Timber.v("steps collected: " + stepsList.size());
+                            RecipeUtils.writeStepsToRoom(stepsList, MainActivity.this);
                         }
 
-//                        for (int i = 0; i <recipeList.size(); i++) {
-//                            long recipeId = recipeList.get(i).getId();
-//                            RecipeUtils.writeRecipesToRoom(recipeId, recipeList,
-//                                    MainActivity.this);
-//
-//                            List<Ingredients> ingredientsList = recipeList.get(i).getIngredients();
-//                            RecipeUtils.writeIngredientsToRoom(recipeId, ingredientsList,
-//                                    MainActivity.this);
-//
-//                            List<Steps> stepsList = recipeList.get(i).getSteps();
-//                            RecipeUtils.writeStepsToRoom(recipeId, stepsList,
-//                                    MainActivity.this);
-//
-//                        }
                         Timber.v("recipe list size :%s", recipeList.size());
                         setAdapter(MainActivity.this, recipeList, MainActivity.this);
-
-
 
                     } else {
                         //write error to log as a warning
