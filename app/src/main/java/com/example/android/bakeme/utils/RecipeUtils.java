@@ -25,7 +25,7 @@ public class RecipeUtils {
     public static void writeRecipesToRoom(List<Recipe> recipes, Context ctxt) {
         ContentValues singleRecipe = new ContentValues();
 
-        for (int i = 0; i< recipes.size(); i++) {
+        for (int i = 0; i < recipes.size(); i++) {
             Recipe receivedRecipe = recipes.get(i);
 
             singleRecipe.put(Recipe.RECIPE_ID, receivedRecipe.getId());
@@ -68,11 +68,11 @@ public class RecipeUtils {
             Steps receivedSteps = stepsList.get(i);
 
             setOfSteps.put(Steps.STEPS_ID, receivedSteps.getId());
-            setOfSteps.put(Steps.STEPS_THUMBNAIL, receivedSteps.getThumbnail());
+            setOfSteps.put(Steps.STEPS_THUMB, receivedSteps.getThumbnail());
             setOfSteps.put(Steps.STEPS_VIDEO, receivedSteps.getVideo());
-            setOfSteps.put(Steps.STEPS_SHORT_DESCRIPTION,
+            setOfSteps.put(Steps.STEPS_SHORT_DESCRIP,
                     receivedSteps.getShortDescription());
-            setOfSteps.put(Steps.STEPS_DESCRIPTION, receivedSteps.getDescription());
+            setOfSteps.put(Steps.STEPS_DESCRIP, receivedSteps.getDescription());
             setOfSteps.put(Steps.STEPS_ASSOCIATED_RECIPE, recipeId);
 
             ctxt.getContentResolver().insert(RecipeProvider.CONTENT_URI_STEPS, setOfSteps);
@@ -92,12 +92,12 @@ public class RecipeUtils {
 
     public static void setfavButton(boolean isFavourited, ImageButton favButtonIb, Context ctxt) {
         int color = 0;
-            if (isFavourited) {
-                color = R.color.colorAccent;
-            } else {
-                color = R.color.colorUnselected;
-            }
-            DrawableCompat.setTint(favButtonIb.getDrawable(),
-                    ContextCompat.getColor(ctxt, color));
+        if (isFavourited) {
+            color = R.color.colorAccent;
+        } else {
+            color = R.color.colorUnselected;
         }
+        DrawableCompat.setTint(favButtonIb.getDrawable(),
+                ContextCompat.getColor(ctxt, color));
+    }
 }

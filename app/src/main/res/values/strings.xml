@@ -41,5 +41,6 @@
     <string name="steps_indicator">steps for</string>
     <string name="associated_recipe">associatedRecipe</string>
     <string name="favourite_button">favourite button</string>
+    <string name="unknown_uri">Unknown URI:</string>
 
 </resources>

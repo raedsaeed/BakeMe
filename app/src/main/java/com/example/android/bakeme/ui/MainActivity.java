@@ -116,21 +116,20 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         ArrayList<Steps> stepsList = new ArrayList<>();
                         long recipeId;
 
-                        for (Recipe recipe: recipes) {
+                        for (Recipe recipe : recipes) {
                             recipeId = recipe.getId();
                             //get this recipe's ingredients from the response and write them to room.
                             ingredientsList.addAll(recipe.getIngredients());
                             RecipeUtils.writeIngredientsToRoom(ingredientsList, recipeId,
                                     MainActivity.this);
 
-
-                            //get this recipe's steps from the reponse and write them to room.
+                            //get this recipe's steps from the response and write them to room.
                             stepsList.addAll(recipe.getSteps());
-                            RecipeUtils.writeStepsToRoom(stepsList, recipeId,MainActivity.this);
+                            RecipeUtils.writeStepsToRoom(stepsList, recipeId, MainActivity.this);
+
                             //clear all for next recipe
                             ingredientsList.clear();
                             stepsList.clear();
-                            recipeId = 0;
                         }
                     } else {
                         //write error to log as a warning
@@ -181,8 +180,17 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
 
         startActivity(openDetailActivity);
 
-        //TODO: favourite button action
-        // https://github.com/irfankhoirul/udacity-baking-app/blob/master/app/src/main/java/com/irfankhoirul/recipe/modul/recipe/RecipeFragment.java
+    }
+
+    @Override
+    public void onFavClick(Recipe recipe, int recipePosition) {
+        if (recipe.getFavourited() == R.integer.is_favourited) {
+            recipe.setFavourited(R.integer.not_favourited);
+        } else {
+            recipe.setFavourited(R.integer.is_favourited);
+        }
+        RecipeUtils.updateFavDb(recipe, this);
+        recipeCardAdapter.notifyItemChanged(recipePosition);
     }
 
     /**

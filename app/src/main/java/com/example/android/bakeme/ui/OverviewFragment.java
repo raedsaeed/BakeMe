@@ -2,8 +2,6 @@ package com.example.android.bakeme.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -38,6 +36,7 @@ public class OverviewFragment extends Fragment {
 
     //Adapters for displaying the ingredients and steps of the recipe in question.
     IngredientAdapter ingredientAdapter;
+    IngredientAdapter.IngredientViewHolder ingredientViewHolder;
     StepAdapter stepAdapter;
 
     //views
@@ -84,26 +83,19 @@ public class OverviewFragment extends Fragment {
             public void onClick(View v) {
                 if (isFavourited) {
                     selectedRecipe.setFavourited(R.integer.not_favourited);
+                    isFavourited = false;
+                    ingredientAdapter.setOfferCheckBoxes(false);
                 } else {
                     selectedRecipe.setFavourited(R.integer.is_favourited);
+                    isFavourited = true;
+                    ingredientAdapter.setOfferCheckBoxes(true);
                 }
+                ingredientAdapter.notifyDataSetChanged();
                 RecipeUtils.setfavButton(isFavourited, favButtonIb, getActivity());
                 RecipeUtils.updateFavDb(selectedRecipe, getActivity());
             }
         });
-
         return root;
-    }
-
-    private void setfavButton() {
-        int color = 0;
-        if (isFavourited) {
-            color = R.color.colorAccent;
-        } else {
-            color = R.color.colorUnselected;
-        }
-        DrawableCompat.setTint(favButtonIb.getDrawable(),
-                ContextCompat.getColor(getActivity(), color));
     }
 
     @Override

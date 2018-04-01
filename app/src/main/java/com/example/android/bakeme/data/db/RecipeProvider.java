@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
 import com.example.android.bakeme.data.Recipe.Steps;
@@ -157,6 +158,7 @@ public class RecipeProvider extends ContentProvider {
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) { // no single insertRecipe needed
         int match = getMatch(uri);
+        assert values != null;
         switch (match) {
             case RECIPE_LIST:
                 long recipeId = recipeDao.insertRecipe(Recipe.fromContentValues(values));

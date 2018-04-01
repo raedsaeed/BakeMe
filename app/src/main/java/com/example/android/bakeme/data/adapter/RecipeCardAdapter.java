@@ -47,6 +47,7 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
 
     public interface RecipeClickHandler {
         void onClick(Recipe recipe);
+        void onFavClick(Recipe recipe, int recipePostion);
     }
 
     /**
@@ -96,6 +97,9 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
 
         holder.cardNameTv.setText(currentRecipe.getName());
 
+        boolean isFavourited = currentRecipe.getFavourited() == R.integer.is_favourited;
+        RecipeUtils.setfavButton(isFavourited, holder.favouriteIb, ctxt);
+
     }
 
     /**
@@ -128,8 +132,6 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
         @BindView(R.id.favourite_ib)
         ImageButton favouriteIb;
 
-        private boolean isFavourited;
-
         /**
          * super constructor
          *
@@ -139,7 +141,13 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
             super(itemView);
             ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
-            favouriteIb.setOnClickListener(this);
+            favouriteIb.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Recipe currentRecipe = recipeList.get(getAdapterPosition());
+                    recipeClicker.onFavClick(currentRecipe, getAdapterPosition());
+                }
+            });
         }
 
         /**
@@ -150,20 +158,7 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
         @Override
         public void onClick(View v) {
             Recipe currentRecipe = recipeList.get(getAdapterPosition());
-
-            if (v.getId() == itemView.getId()) {
-                currentRecipe = recipeList.get(getAdapterPosition());
                 recipeClicker.onClick(currentRecipe);
-            } else if (v.getId() == favouriteIb.getId()) {
-
-                if (isFavourited) {
-                    isFavourited = false;
-                } else{
-                    isFavourited = true;
-                }
-                RecipeUtils.setfavButton(isFavourited, favouriteIb, ctxt);
-                RecipeUtils.updateFavDb(currentRecipe, ctxt);
-            }
         }
     }
 }

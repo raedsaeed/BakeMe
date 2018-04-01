@@ -1,26 +1,17 @@
 package com.example.android.bakeme.ui;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.content.res.AppCompatResources;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageButton;
 
 import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
@@ -31,7 +22,6 @@ import com.example.android.bakeme.data.db.RecipeProvider;
 
 import java.util.ArrayList;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 
@@ -188,16 +178,16 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
                 break;
             case INGREDIENTS_LOADER:
                 uri = RecipeProvider.CONTENT_URI_INGREDIENTS;
-                selection = Ingredients.INGREDIENTS_ASSOCIATED_RECIPE + "=?";
-                selectionArgs = new String[]{String.valueOf(selectedRecipeId)};
+                //selection = Ingredients.INGREDIENTS_ASSOCIATED_RECIPE + "=?";
+                //selectionArgs = new String[]{String.valueOf(selectedRecipeId)};
                 break;
             case STEPS_LOADER:
                 uri = RecipeProvider.CONTENT_URI_STEPS;
-                selection = Steps.STEPS_ASSOCIATED_RECIPE + "=?";
-                selectionArgs = new String[]{String.valueOf(selectedRecipeId)};
+                //selection = Steps.STEPS_ASSOCIATED_RECIPE + "=?";
+                //selectionArgs = new String[]{String.valueOf(selectedRecipeId)};
                 break;
         }
-        return new CursorLoader(this, uri, projection, selection, selectionArgs,
+        return new CursorLoader(this, uri, projection, null, null,
                 null);
     }
 
@@ -216,30 +206,36 @@ public class DetailActivity extends AppCompatActivity implements StepAdapter.Ste
             case INGREDIENTS_LOADER:
                 data.moveToFirst();
                 while (data.moveToNext()) {
-                    long id = data.getLong(data.getColumnIndex(Ingredients.INGREDIENTS_ID));
-                    String ingredient = data.getString(data.getColumnIndex(Ingredients
-                            .INGREDIENTS_INGREDIENT));
-                    String measure = data.getString(data.getColumnIndex(Ingredients
-                            .INGREDIENTS_MEASURE));
-                    int quantity = data.getInt(data.getColumnIndex(Ingredients
-                            .INGREDIENTS_QUANTITY));
-                    int checked = data.getInt(data.getColumnIndex(Ingredients
-                            .INGREDIENTS_CHECKED));
-                    ingredientsList.add(new Ingredients(id, ingredient, measure, quantity,
-                            checked));
+                    long recipeID = data.getLong(data.getColumnIndex(Ingredients.INGREDIENTS_ASSOCIATED_RECIPE));
+                    if (recipeID == selectedRecipe.getId()) {
+                        long id = data.getLong(data.getColumnIndex(Ingredients.INGREDIENTS_ID));
+                        String ingredient = data.getString(data.getColumnIndex(Ingredients
+                                .INGREDIENTS_INGREDIENT));
+                        String measure = data.getString(data.getColumnIndex(Ingredients
+                                .INGREDIENTS_MEASURE));
+                        int quantity = data.getInt(data.getColumnIndex(Ingredients
+                                .INGREDIENTS_QUANTITY));
+                        int checked = data.getInt(data.getColumnIndex(Ingredients
+                                .INGREDIENTS_CHECKED));
+                        ingredientsList.add(new Ingredients(id, ingredient, measure, quantity,
+                                checked));
+                    }
                 }
                 break;
             case STEPS_LOADER:
                 data.moveToFirst();
                 while (data.moveToNext()) {
-                    long id = data.getLong(data.getColumnIndex(Steps.STEPS_ID));
-                    String shortDescription
-                            = data.getString(data.getColumnIndex(Steps.STEPS_SHORT_DESCRIPTION));
-                    String description
-                            = data.getString(data.getColumnIndex(Steps.STEPS_DESCRIPTION));
-                    String video = data.getString(data.getColumnIndex(Steps.STEPS_VIDEO));
-                    String thumbnail = data.getString(data.getColumnIndex(Steps.STEPS_THUMBNAIL));
-                    stepsList.add(new Steps(id, shortDescription, description, video, thumbnail));
+                    long recipeId = data.getLong(data.getColumnIndex(Steps.STEPS_ASSOCIATED_RECIPE));
+                    if (recipeId == selectedRecipe.getId()) {
+                        long id = data.getLong(data.getColumnIndex(Steps.STEPS_ID));
+                        String shortDescrip
+                                = data.getString(data.getColumnIndex(Steps.STEPS_SHORT_DESCRIP));
+                        String descrip
+                                = data.getString(data.getColumnIndex(Steps.STEPS_DESCRIP));
+                        String video = data.getString(data.getColumnIndex(Steps.STEPS_VIDEO));
+                        String thumb = data.getString(data.getColumnIndex(Steps.STEPS_THUMB));
+                        stepsList.add(new Steps(id, shortDescrip, descrip, video, thumb));
+                    }
                 }
                 break;
 

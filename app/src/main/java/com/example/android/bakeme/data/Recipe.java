@@ -244,15 +244,15 @@ public class Recipe implements Parcelable {
 
         public static final String TABLE_STEPS = "steps";
         public static final String STEPS_ID = "id";
-        public static final String STEPS_THUMBNAIL = "thumbnailURL";
+        public static final String STEPS_THUMB = "thumbnailURL";
         public static final String STEPS_VIDEO = "videoURL";
-        public static final String STEPS_DESCRIPTION = "description";
-        public static final String STEPS_SHORT_DESCRIPTION = "shortDescription";
+        public static final String STEPS_DESCRIP = "description";
+        public static final String STEPS_SHORT_DESCRIP = "shortDescription";
         public static final String STEPS_ASSOCIATED_RECIPE = ASSOCIATED_RECIPE ;
 
-        @ColumnInfo(name = STEPS_THUMBNAIL)
+        @ColumnInfo(name = STEPS_THUMB)
         @Expose
-        @SerializedName(STEPS_THUMBNAIL)
+        @SerializedName(STEPS_THUMB)
         private String thumbnail;
 
         @ColumnInfo(name = STEPS_VIDEO)
@@ -260,14 +260,14 @@ public class Recipe implements Parcelable {
         @SerializedName(STEPS_VIDEO)
         private String video;
 
-        @ColumnInfo(name = STEPS_DESCRIPTION)
+        @ColumnInfo(name = STEPS_DESCRIP)
         @Expose
-        @SerializedName(STEPS_DESCRIPTION)
+        @SerializedName(STEPS_DESCRIP)
         private String description;
 
-        @ColumnInfo(name = STEPS_SHORT_DESCRIPTION)
+        @ColumnInfo(name = STEPS_SHORT_DESCRIP)
         @Expose
-        @SerializedName(STEPS_SHORT_DESCRIPTION)
+        @SerializedName(STEPS_SHORT_DESCRIP)
         private String shortDescription;
 
         @ColumnInfo(name = STEPS_ASSOCIATED_RECIPE)
@@ -297,17 +297,17 @@ public class Recipe implements Parcelable {
             if (values.containsKey(STEPS_ID)) {
                 steps.id = values.getAsInteger(STEPS_ID);
             }
-            if (values.containsKey(STEPS_THUMBNAIL)) {
-                steps.thumbnail = values.getAsString(STEPS_THUMBNAIL);
+            if (values.containsKey(STEPS_THUMB)) {
+                steps.thumbnail = values.getAsString(STEPS_THUMB);
             }
             if (values.containsKey(STEPS_VIDEO)) {
                 steps.video = values.getAsString(STEPS_VIDEO);
             }
-            if (values.containsKey(STEPS_DESCRIPTION)) {
-                steps.description = values.getAsString(STEPS_DESCRIPTION);
+            if (values.containsKey(STEPS_DESCRIP)) {
+                steps.description = values.getAsString(STEPS_DESCRIP);
             }
-            if (values.containsKey(STEPS_SHORT_DESCRIPTION)) {
-                steps.shortDescription = values.getAsString(STEPS_SHORT_DESCRIPTION);
+            if (values.containsKey(STEPS_SHORT_DESCRIP)) {
+                steps.shortDescription = values.getAsString(STEPS_SHORT_DESCRIP);
             }
             if (values.containsKey(STEPS_ASSOCIATED_RECIPE)) {
                 steps.associatedRecipe = values.getAsLong(STEPS_ASSOCIATED_RECIPE);
@@ -441,12 +441,23 @@ public class Recipe implements Parcelable {
         }
 
         @Ignore
-        public Ingredients(long id, String ingredient, String measure, int quantity, int checked) {
+        public Ingredients(long id, String ingredient, String measure, double quantity, int checked) {
             this.id = id;
             this.ingredient = ingredient;
             this.measure = measure;
             this.quantity = quantity;
             this.checked = checked;
+        }
+
+        @Ignore
+        public Ingredients(long id, String ingredient, String measure, double quantity,
+                           long associatedRecipe) {
+            this.id = id;
+            this.ingredient = ingredient;
+            this.measure = measure;
+            this.quantity = quantity;
+            this.checked = checked;
+            this.associatedRecipe = associatedRecipe;
         }
 
         public static Ingredients fromContentValues(ContentValues values) {
