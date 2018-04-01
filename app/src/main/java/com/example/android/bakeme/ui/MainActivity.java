@@ -76,11 +76,6 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
 
         Timber.plant(new Timber.DebugTree());
 
-        if (recipeList == null) {
-            getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
-                    MainActivity.this);
-        }
-
         if (savedInstanceState != null && savedInstanceState.containsKey(String
                 .valueOf(R.string.RECIPE_KEY))) {
             mainBinder.alertView.progressPb.setVisibility(View.GONE);
@@ -90,7 +85,11 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
             if (recipeList != null) {
                 setAdapter(this, recipeList, this);
             }
+        } else {
+            getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
+                    MainActivity.this);
         }
+
     }
 
     //Make sure we have internet before we load the data.
