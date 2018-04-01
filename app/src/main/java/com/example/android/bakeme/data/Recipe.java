@@ -2,14 +2,12 @@ package com.example.android.bakeme.data;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.example.android.bakeme.R;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -20,9 +18,7 @@ import java.util.StringTokenizer;
 
 import retrofit2.Retrofit;
 
-import static com.example.android.bakeme.data.Recipe.Ingredients.INGREDIENTS_ID;
 import static com.example.android.bakeme.data.Recipe.Ingredients.TABLE_INGREDIENTS;
-import static com.example.android.bakeme.data.Recipe.Steps.STEPS_ID;
 import static com.example.android.bakeme.data.Recipe.Steps.TABLE_STEPS;
 
 /**
@@ -34,7 +30,7 @@ import static com.example.android.bakeme.data.Recipe.Steps.TABLE_STEPS;
 @Entity(tableName = Recipe.TABLE_RECIPE)
 public class Recipe implements Parcelable {
 
-    public static final String ASSOCIATED_RECIPE = "associatedRecipe";
+    static final String ASSOCIATED_RECIPE = "associatedRecipe";
 
     //db table
     public static final String TABLE_RECIPE = "recipes";

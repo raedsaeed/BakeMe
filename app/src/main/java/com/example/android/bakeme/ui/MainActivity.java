@@ -119,16 +119,16 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                         Steps currentSteps = new Steps();
 
                         for (Recipe recipe: response.body()) {
-
+                            long recipeId = recipe.getId();
                             //get this recipe's ingredients from the response and write them to room.
-                            currentIngredient.setAssociatedRecipe(recipe.getId());
+                            currentIngredient.setAssociatedRecipe(recipeId);
                             ingredientsList.addAll(recipe.getIngredients());
                             RecipeUtils.writeIngredientsToRoom(ingredientsList,
                                     MainActivity.this);
                             ingredientsList.clear(); //ready for the next recipe
 
                             //get this recipe's steps from the reponse and write them to room.
-                            currentSteps.setAssociatedRecipe(recipe.getId());
+                            currentSteps.setAssociatedRecipe(recipeId);
                             stepsList.addAll(recipe.getSteps());
                             RecipeUtils.writeStepsToRoom(stepsList, MainActivity.this);
                             stepsList.clear(); // ready for the next recipe
