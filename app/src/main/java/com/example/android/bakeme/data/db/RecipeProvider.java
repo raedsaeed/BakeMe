@@ -19,12 +19,14 @@ import com.example.android.bakeme.data.Recipe.Steps;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * {@link RecipeProvider} is a {@link ContentProvider} communicating between the acitivities and the
  * db using {@link RecipeDao}.
  */
 public class RecipeProvider extends ContentProvider {
-    private static final String TAG = "RecipeProvider";
+
     //authority & uri
     public static final String CONTENT_AUTH = "com.example.android.bakeme";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTH);
@@ -89,6 +91,7 @@ public class RecipeProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         recipeDao = RecipeDatabase.getRecipeDbInstance(getContext()).recipeDao();
+        Timber.plant(new Timber.DebugTree());
         return true;
     }
 
@@ -143,7 +146,6 @@ public class RecipeProvider extends ContentProvider {
                 final List<Recipe> recipes = new ArrayList<>();
                 for (int i = 0; i < values.length; i++) {
                     recipes.set(i, Recipe.fromContentValues(values[i]));
-                    Log.d(TAG, "bulkInsert: insert data num" + i);
                 }
                 return recipeDao.insertAll(recipes).length;
             default:
@@ -157,7 +159,6 @@ public class RecipeProvider extends ContentProvider {
         int match = getMatch(uri);
         switch (match) {
             case RECIPE_LIST:
-                Log.d(TAG, "Trying to insert ");
                 long recipeId = recipeDao.insertRecipe(Recipe.fromContentValues(values));
                 getContext().getContentResolver().notifyChange(uri, null);
                 return ContentUris.withAppendedId(uri, recipeId);

@@ -10,6 +10,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -21,6 +23,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.example.android.bakeme.R;
+import com.example.android.bakeme.RecipeIdlingResource;
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.adapter.RecipeCardAdapter;
 import com.example.android.bakeme.data.api.ApiClient;
@@ -29,6 +32,7 @@ import com.example.android.bakeme.data.db.RecipeDatabase;
 import com.example.android.bakeme.data.db.RecipeProvider;
 import com.example.android.bakeme.databinding.ActivityMainBinding;
 import com.example.android.bakeme.utils.RecipeUtils;
+import com.google.gson.JsonArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +51,22 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
     RecipeCardAdapter recipeCardAdapter;
     ArrayList<Recipe> recipeList;
 
+    // Idling resource for testing purposes only
+    @Nullable
+    private RecipeIdlingResource idlingResource;
+
+    /**
+     * Only called from test, creates and returns a new {@link RecipeIdlingResource}.
+     */
+    @VisibleForTesting
+    @NonNull
+    public RecipeIdlingResource getIdlingResource() {
+        if (idlingResource == null) {
+            idlingResource = new RecipeIdlingResource();
+        }
+        return idlingResource;
+    }
+
     private static int RECIPE_LOADER = 1;
 
     @Override
@@ -55,23 +75,21 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
         mainBinder = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         Timber.plant(new Timber.DebugTree());
-//        if (RecipeDatabase.getRecipeDbInstance(this) ==null) {
-//            RecipeDatabase.getRecipeDbInstance(this);
-//        }
 
-        getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
-                MainActivity.this);
+        if (recipeList == null) {
+            getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
+                    MainActivity.this);
+        }
 
-        if (savedInstanceState != null && savedInstanceState.containsKey(String.valueOf(R.string.RECIPE_KEY))) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(String
+                .valueOf(R.string.RECIPE_KEY))) {
             mainBinder.alertView.progressPb.setVisibility(View.GONE);
             mainBinder.alertView.alertTv.setVisibility(View.GONE);
-            recipeList = savedInstanceState.getParcelableArrayList(String.valueOf(R.string.RECIPE_KEY));
+            recipeList = savedInstanceState.getParcelableArrayList(String
+                    .valueOf(R.string.RECIPE_KEY));
             if (recipeList != null) {
                 setAdapter(this, recipeList, this);
             }
-        } else {
-            getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
-                    MainActivity.this);
         }
     }
 
@@ -85,41 +103,9 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
             mainBinder.alertView.alertTv.setVisibility(View.GONE);
             mainBinder.alertView.progressPb.setVisibility(View.VISIBLE);
 
-//            if (recipeList == null) {
+            RecipeUtils.retrieveRecipes(this, mainBinder.alertView.progressPb,
+                    mainBinder.alertView.alertTv);
 
-            ApiInterface apiCall = ApiClient.getClient().create(ApiInterface.class);
-
-            Call<List<Recipe>> call = apiCall.getRecipes();
-            call.enqueue(new Callback<List<Recipe>>() {
-                @Override
-                public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
-                    recipeList = new ArrayList<>();
-                    if (response.isSuccessful()) {
-                        //retrieve data and send to adapter to display
-                        List<Recipe> recipes = response.body();
-                        recipeList.addAll(recipes);
-                        Timber.v("recipe list size :%s", recipeList.size());
-                        setAdapter(MainActivity.this, recipeList, MainActivity.this);
-                        RecipeUtils.writeRecipesToRoom(recipeList, MainActivity.this);
-                        RecipeUtils.writeIngredientsToRoom(recipeList, MainActivity.this);
-                        RecipeUtils.writeStepsToRoom(recipeList, MainActivity.this);
-
-                    } else {
-                        //write error to log as a warning
-                        Timber.w("HTTP status code: %s", response.code());
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<List<Recipe>> call, Throwable t) {
-                    //write error to log
-                    Timber.e(t.toString());
-                    mainBinder.alertView.progressPb.setVisibility(View.GONE);
-                    mainBinder.alertView.alertTv.setVisibility(View.VISIBLE);
-                    mainBinder.alertView.alertTv.setText(R.string.no_internet);
-                }
-            });
-        } else {
             getSupportLoaderManager().initLoader(RECIPE_LOADER, null,
                     MainActivity.this);
         }
@@ -168,7 +154,6 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-        Timber.v("onCreate Loader called");
         String[] projection = new String[]{
                 RECIPE_ID,
                 RECIPE_IMAGE,
