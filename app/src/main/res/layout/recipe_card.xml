@@ -41,18 +41,18 @@
             app:layout_constraintTop_toTopOf="@+id/card_image_iv"
             tools:text="Serves: 4" />
 
-        <ImageView
-            android:id="@+id/favourite_iv"
+        <CheckBox
+            android:id="@+id/recipe_favourite_cb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin"
             app:layout_constraintBottom_toBottomOf="@+id/card_name_tv"
             app:layout_constraintEnd_toEndOf="parent"
+            android:background="@android:color/transparent"
             app:layout_constraintTop_toTopOf="@+id/card_name_tv"
-            app:srcCompat="@android:drawable/btn_star_big_on"
+            android:button="@drawable/favourite_selector"
             android:layout_marginRight="@dimen/margin"
-            android:contentDescription="@string/favourited_recipe"
-            android:visibility="gone"/>
+            android:contentDescription="@string/favourited_recipe"/>
 
     </android.support.constraint.ConstraintLayout>
 </layout>

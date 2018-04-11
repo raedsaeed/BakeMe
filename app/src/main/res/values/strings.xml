@@ -20,7 +20,7 @@
     <string name="navigate_back_contDescrip">Navigate back</string>
     <string name="recipe_card_image_contDescrip">Recipe card image</string>
     <string name="widget_title_contenDescrip">BakeMe app, shopping list widget</string>
-    <string name="favourited_recipe">favourited recipe</string>
+    <string name="favourited_recipe">favouriteFlag recipe</string>
 
     <!-- toasts and other messages -->
     <string name="landscape_instruction"> &lt; previous step | swipe right &gt;</string>
@@ -39,5 +39,8 @@
     <string name="no_recipes">There are no recipe to be displayed.</string>
     <string name="ingredient_indicator">ingredients for</string>
     <string name="steps_indicator">steps for</string>
+    <string name="associated_recipe">associatedRecipe</string>
+    <string name="favourite_button">favourite button</string>
+    <string name="unknown_uri">Unknown URI:</string>
 
 </resources>

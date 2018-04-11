@@ -315,8 +315,13 @@ public class MethodFragment extends Fragment implements ExoPlayer.EventListener 
             exoPlayer.addListener(this);
 
             // Prepare the MediaSource and start playing
-            exoPlayer.prepare(getMediaSource());
-            exoPlayer.setPlayWhenReady(true);
+            if (!step.getVideo().isEmpty()) {
+                exoPlayer.prepare(getMediaSource());
+                exoPlayer.setPlayWhenReady(true);
+                videoThumbnailIv.setVisibility(View.INVISIBLE);
+            } else {
+                videoThumbnailIv.setVisibility(View.VISIBLE);
+            }
         }
     }
 

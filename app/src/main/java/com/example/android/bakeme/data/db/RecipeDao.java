@@ -4,32 +4,30 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
-import android.content.ContentValues;
 import android.database.Cursor;
 
 import com.example.android.bakeme.data.Recipe;
 import com.example.android.bakeme.data.Recipe.Ingredients;
-import com.example.android.bakeme.data.Recipe.Steps;
 
-import static com.example.android.bakeme.data.db.RecipeContract.*;
+import java.util.List;
+
+import static com.example.android.bakeme.data.Recipe.*;
+import static com.example.android.bakeme.data.Recipe.Ingredients.INGREDIENTS_ASSOCIATED_RECIPE;
+import static com.example.android.bakeme.data.Recipe.Ingredients.TABLE_INGREDIENTS;
+import static com.example.android.bakeme.data.Recipe.Steps.STEPS_ASSOCIATED_RECIPE;
+import static com.example.android.bakeme.data.Recipe.Steps.TABLE_STEPS;
 
 /**
  * {@link RecipeDao} provides the CRUD methods ready for use for the ContentProvider.
  * See RoomWithContentProvider Code sample provided via AndroidStudio
  */
-
+@Dao
 public interface RecipeDao {
 
     // ------------- C ----------- //
 
     @Insert
-    long[] insertAllRecipes(ContentValues[] recipes);
-
-    @Insert
-    long[] insertAllIngredients(ContentValues[] ingredients);
-
-    @Insert
-    long[] insertAllSteps(ContentValues[] steps);
+    long[] insertAll(List<Recipe> recipes);
 
     /**
      * Insert recipes from api
@@ -46,7 +44,7 @@ public interface RecipeDao {
      * @param ingredient the single ingredient that will be added
      * @return number of ingredients added.
      */
-    @Insert
+    @Insert(onConflict = 1)
     long insertIngredient(Ingredients ingredient);
 
     /**
@@ -55,7 +53,7 @@ public interface RecipeDao {
      * @param step the single step that will be added
      * @return number of steps added.
      */
-    @Insert
+    @Insert(onConflict = 1)
     long insertStep(Steps step);
 
     //single inserts is not needed as we will not be writing our own.
@@ -67,7 +65,7 @@ public interface RecipeDao {
      *
      * @return cursor with all recipes stored in the db
      */
-    @Query("SELECT * FROM " + RecipeEntry.TABLE_RECIPE)
+    @Query("SELECT * FROM " + TABLE_RECIPE)
     Cursor QueryAllRecipes();
 
     /**
@@ -75,16 +73,16 @@ public interface RecipeDao {
      *
      * @return cursor with all ingredients stored in the db
      */
-    @Query("SELECT * FROM " + IngredientsEntry.TABLE_INGREDIENTS)
-    Cursor QueryAllIngredients();
+    @Query("SELECT * FROM " + TABLE_INGREDIENTS + " WHERE " + INGREDIENTS_ASSOCIATED_RECIPE + " = :recipeId")
+    Cursor QueryAllIngredients(long recipeId);
 
     /**
      * Query all steps to display
      *
      * @return cursor with all steps stored in the db
      */
-    @Query("SELECT * FROM " + StepsEntry.TABLE_STEPS)
-    Cursor QueryAllSteps();
+    @Query("SELECT * FROM " + TABLE_STEPS + " WHERE " + STEPS_ASSOCIATED_RECIPE + "= :recipeId")
+    Cursor QueryAllSteps(long recipeId);
 
     //we don't need to query single recipes, ingredients or steps
 

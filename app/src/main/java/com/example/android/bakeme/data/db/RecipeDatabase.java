@@ -1,5 +1,6 @@
 package com.example.android.bakeme.data.db;
 
+import android.app.Service;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
@@ -19,6 +20,7 @@ import java.util.concurrent.Executors;
  * {@link RecipeDatabase} is a {@link RoomDatabase} providing access to the db.
  * Based on RoomWithContentProvider & https://github.com/irfankhoirul/udacity-baking-app
  */
+@Database(entities = {Recipe.class, Steps.class, Ingredients.class}, version = 1)
 public abstract class RecipeDatabase extends RoomDatabase {
     private static final String TAG = "RecipeDatabase";
 
@@ -51,7 +53,7 @@ public abstract class RecipeDatabase extends RoomDatabase {
 //                Executors.newSingleThreadScheduledExecutor().execute(new Runnable() {
 //                    @Override
 //                    public void run() {
-//                        getRecipeDbInstance(ctxt).recipeDao().insertAllRecipes(recipes);
+//                        getRecipeDbInstance(ctxt).recipeDao().insertAll(recipes);
 //                    }
 //                });
 //

@@ -1,91 +1,105 @@
 package com.example.android.bakeme.utils;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.net.Uri;
 
-import com.example.android.bakeme.R;
 import com.example.android.bakeme.data.Recipe;
-import com.example.android.bakeme.data.db.RecipeContract.IngredientsEntry;
-import com.example.android.bakeme.data.db.RecipeContract.RecipeEntry;
-import com.example.android.bakeme.data.db.RecipeContract.StepsEntry;
+import com.example.android.bakeme.data.Recipe.Ingredients;
+import com.example.android.bakeme.data.Recipe.Steps;
+import com.example.android.bakeme.data.db.RecipeProvider;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * Methods enabling the storing of the recipe information.
  */
 public class RecipeUtils {
 
-    private static Recipe receivedRecipe;
+    public static long getCurrentRecipeId() {
+        return currentRecipeId;
+    }
 
-    public static void writeRecipesToRoom(ArrayList<Recipe> recipes, Context ctxt) {
-        ContentValues[] recipeValues = new ContentValues[0];
+    public static void setCurrentRecipeId(long currentRecipeId) {
+        RecipeUtils.currentRecipeId = currentRecipeId;
+    }
+
+    static long currentRecipeId;
+
+    public static void writeRecipesToRoom(List<Recipe> recipes, Context ctxt) {
         ContentValues singleRecipe = new ContentValues();
 
         for (int i = 0; i < recipes.size(); i++) {
-            receivedRecipe = recipes.get(i);
+            Recipe receivedRecipe = recipes.get(i);
 
-            singleRecipe.put(RecipeEntry.RECIPE_ID, receivedRecipe.getId());
-            singleRecipe.put(RecipeEntry.RECIPE_IMAGE, receivedRecipe.getImage());
-            singleRecipe.put(RecipeEntry.RECIPE_NAME, receivedRecipe.getName());
-            singleRecipe.put(RecipeEntry.RECIPE_SERVINGS, receivedRecipe.getServings());
-            singleRecipe.put(RecipeEntry.RECIPE_FAVOURITED, receivedRecipe.getFavourited());
-            singleRecipe.put(RecipeEntry.RECIPE_INGREDIENTS,
-                    ctxt.getString(R.string.ingredient_indicator) + receivedRecipe.getId());
-            singleRecipe.put(RecipeEntry.RECIPE_STEPS,
-                    ctxt.getString(R.string.steps_indicator) + receivedRecipe.getId());
+            getRecipeValues(singleRecipe, receivedRecipe);
 
-            recipeValues[i] = singleRecipe;
+            ctxt.getContentResolver().insert(RecipeProvider.CONTENT_URI_RECIPE, singleRecipe);
         }
-
-        ctxt.getContentResolver().bulkInsert(RecipeEntry.CONTENT_URI_RECIPE, recipeValues);
     }
 
-    public static void writeIngredientsToRoom(ArrayList<Recipe> recipes, Context ctxt) {
-        ContentValues[] ingredientValues = new ContentValues[0]; //use id to link to recipe
+    private static void getRecipeValues(ContentValues singleRecipe, Recipe receivedRecipe) {
+        singleRecipe.put(Recipe.RECIPE_ID, receivedRecipe.getId());
+        singleRecipe.put(Recipe.RECIPE_IMAGE, receivedRecipe.getImage());
+        singleRecipe.put(Recipe.RECIPE_NAME, receivedRecipe.getName());
+        singleRecipe.put(Recipe.RECIPE_SERVINGS, receivedRecipe.getServings());
+        singleRecipe.put(Recipe.RECIPE_FAVOURITED, receivedRecipe.isFavourited());
+    }
+
+    public static void writeIngredientsToRoom(ArrayList<Ingredients> ingredientsList,
+                                              long recipeId, Context ctxt) {
         ContentValues setOfIngredients = new ContentValues();
 
-        for (int i = 0; i < recipes.size(); i++) {
-            receivedRecipe = recipes.get(i);
-            Recipe.Ingredients receivedIngredients = receivedRecipe.getIngredients().get(i);
+        for (int i = 0; i < ingredientsList.size(); i++) {
+            Ingredients receivedIngredients = ingredientsList.get(i);
 
-            setOfIngredients.put(IngredientsEntry.INGREDIENTS_ID, receivedIngredients.getId());
-            setOfIngredients.put(IngredientsEntry.INGREDIENTS_INGREDIENT, receivedIngredients
+            setOfIngredients.put(Ingredients.INGREDIENTS_ID, receivedIngredients.getId());
+            setOfIngredients.put(Ingredients.INGREDIENTS_INGREDIENT, receivedIngredients
                     .getIngredient());
-            setOfIngredients.put(IngredientsEntry.INGREDIENTS_MEASURE,
+            setOfIngredients.put(Ingredients.INGREDIENTS_MEASURE,
                     receivedIngredients.getMeasure());
-            setOfIngredients.put(IngredientsEntry.INGREDIENTS_QUANTITY, receivedIngredients
+            setOfIngredients.put(Ingredients.INGREDIENTS_QUANTITY, receivedIngredients
                     .getQuantity());
-            setOfIngredients.put(IngredientsEntry.INGREDIENTS_CHECKED,
-                    receivedIngredients.getChecked());
-            setOfIngredients.put(IngredientsEntry.INGREDIENTS_ASSOCIATED_RECIPE,
-                    ctxt.getString(R.string.ingredient_indicator) + receivedRecipe.getId());
+            setOfIngredients.put(Ingredients.INGREDIENTS_CHECKED,
+                    receivedIngredients.isChecked());
+            setOfIngredients.put(Ingredients.INGREDIENTS_ASSOCIATED_RECIPE,
+                    recipeId);
 
-            ingredientValues[i] = setOfIngredients;
+            ctxt.getContentResolver().insert(RecipeProvider.CONTENT_URI_INGREDIENTS, setOfIngredients);
         }
-        ctxt.getContentResolver().bulkInsert(IngredientsEntry.CONTENT_URI_INGREDIENTS,
-                ingredientValues);
     }
 
-    public static void writeStepsToRoom(ArrayList<Recipe> recipes, Context ctxt) {
-        ContentValues[] stepsValues = new ContentValues[0];
+    public static void writeStepsToRoom(ArrayList<Steps> stepsList, long recipeId, Context ctxt) {
         ContentValues setOfSteps = new ContentValues();
 
-        for (int i = 0; i < recipes.size(); i++) {
-            receivedRecipe = recipes.get(i);
-            Recipe.Steps receivedSteps = receivedRecipe.getSteps().get(i);
+        for (int i = 0; i < stepsList.size(); i++) {
+            Steps receivedSteps = stepsList.get(i);
 
-            setOfSteps.put(StepsEntry.STEPS_ID, receivedSteps.getId());
-            setOfSteps.put(StepsEntry.STEPS_THUMBNAIL, receivedSteps.getThumbnail());
-            setOfSteps.put(StepsEntry.STEPS_VIDEO, receivedSteps.getVideo());
-            setOfSteps.put(StepsEntry.STEPS_SHORT_DESCRIPTION,
+            setOfSteps.put(Steps.STEPS_ID, receivedSteps.getId());
+            setOfSteps.put(Steps.STEPS_THUMB, receivedSteps.getThumbnail());
+            setOfSteps.put(Steps.STEPS_VIDEO, receivedSteps.getVideo());
+            setOfSteps.put(Steps.STEPS_SHORT_DESCRIP,
                     receivedSteps.getShortDescription());
-            setOfSteps.put(StepsEntry.STEPS_DESCRIPTION, receivedSteps.getDescription());
-            setOfSteps.put(StepsEntry.STEPS_ASSOCIATED_RECIPE,
-                    ctxt.getString(R.string.steps_indicator) + receivedRecipe.getId());
+            setOfSteps.put(Steps.STEPS_DESCRIP, receivedSteps.getDescription());
+            setOfSteps.put(Steps.STEPS_ASSOCIATED_RECIPE, recipeId);
 
-            stepsValues[i] = setOfSteps;
+            Uri inserted = ctxt.getContentResolver().insert(RecipeProvider.CONTENT_URI_STEPS, setOfSteps);
+            Timber.v("writing Step to room" + inserted + "; recipe id: " + recipeId);
         }
-        ctxt.getContentResolver().bulkInsert(StepsEntry.CONTENT_URI_STEPS, stepsValues);
+    }
+
+    public static void updateFavDb(Recipe selectedRecipe, Context ctxt) {
+        //create uri referencing the recipe's id
+        Uri uri = ContentUris.withAppendedId(RecipeProvider.CONTENT_URI_RECIPE,
+                selectedRecipe.getId());
+
+        //store changed favourite selection to the db.
+        ContentValues singleRecipe = new ContentValues();
+        getRecipeValues(singleRecipe, selectedRecipe);
+        ctxt.getContentResolver().update(uri, singleRecipe, null, null);
     }
 }

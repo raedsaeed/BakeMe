@@ -5,6 +5,7 @@
         android:id="@+id/favourite_menu"
         android:icon="@android:drawable/btn_star_big_off"
         android:title="@string/favourite_menu"
-        app:showAsAction="always" />
+        app:showAsAction="always"
+        android:onClick="updateFavourited"/>
 
 </menu>
