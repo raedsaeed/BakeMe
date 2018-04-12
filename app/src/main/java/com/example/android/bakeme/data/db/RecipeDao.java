@@ -11,6 +11,7 @@ import com.example.android.bakeme.data.Recipe.Ingredients;
 
 import java.util.List;
 
+import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 import static com.example.android.bakeme.data.Recipe.*;
 import static com.example.android.bakeme.data.Recipe.Ingredients.INGREDIENTS_ASSOCIATED_RECIPE;
 import static com.example.android.bakeme.data.Recipe.Ingredients.TABLE_INGREDIENTS;
@@ -93,7 +94,7 @@ public interface RecipeDao {
      * @param recipe is the recipe to be updated
      * @return number of recipes that have been updated.
      */
-    @Update
+    @Update(onConflict = 1)
     int updateRecipe(Recipe recipe);
 
     /** update ingredient will allow users to make a shopping list for a recipe.

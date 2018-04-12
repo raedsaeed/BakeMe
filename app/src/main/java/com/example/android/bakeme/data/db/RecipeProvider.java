@@ -28,6 +28,7 @@ import timber.log.Timber;
  * db using {@link RecipeDao}.
  */
 public class RecipeProvider extends ContentProvider {
+    private static final String TAG = "RecipeProvider";
 
     //authority & uri
     public static final String CONTENT_AUTH = "com.example.android.bakeme";

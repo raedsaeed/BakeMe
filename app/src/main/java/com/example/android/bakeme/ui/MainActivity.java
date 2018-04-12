@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.View;
 
 import com.example.android.bakeme.R;
@@ -42,7 +43,7 @@ import static com.example.android.bakeme.data.Recipe.*;
 
 public class MainActivity extends AppCompatActivity implements RecipeCardAdapter.RecipeClickHandler,
         LoaderManager.LoaderCallbacks<Cursor> {
-
+    private static final String TAG = "MainActivity";
     ActivityMainBinding mainBinder;
     RecipeCardAdapter recipeCardAdapter;
     ArrayList<Recipe> recipeList;
@@ -189,15 +190,14 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
 
     @Override
     public void onFavClick(Recipe recipe, int recipePosition, boolean isChecked) {
-        ContentValues values = new ContentValues();
         if (isChecked) {
-            values.put(Recipe.RECIPE_FAVOURITED, R.integer.is_checked);
+            recipe.setFavourited(true);
+            Log.d(TAG, "onFavClick: true");
         } else {
-            values.put(Recipe.RECIPE_FAVOURITED, R.integer.not_checked);
+            recipe.setFavourited(false);
+            Log.d(TAG, "onFavClick: false");
         }
         RecipeUtils.updateFavDb(recipe, this);
-        getSupportLoaderManager().restartLoader(RECIPE_LOADER, null, this);
-        recipeCardAdapter.notifyItemChanged(recipePosition);
     }
 
     /**
@@ -237,6 +237,7 @@ public class MainActivity extends AppCompatActivity implements RecipeCardAdapter
                 int servings = data.getInt(data.getColumnIndex(RECIPE_SERVINGS));
                 boolean favourited = data.getInt(data.getColumnIndex(RECIPE_FAVOURITED)) != 0;
                 recipeList.add(new Recipe(id, image, name, servings, favourited));
+                Log.d(TAG, "onLoadFinished: " + favourited);
             }
             data.close();
             setAdapter(this, recipeList, this);

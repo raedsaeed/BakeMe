@@ -2,7 +2,9 @@ package com.example.android.bakeme.data.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -25,6 +27,7 @@ import butterknife.ButterKnife;
  * {@link RecipeCardAdapter} is a {@link RecyclerView.Adapter} to populate the RecipeCards.
  */
 public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.RecipeCardHolder> {
+    private static final String TAG = "RecipeCardAdapter";
 
     private final Context ctxt;
     private final ArrayList<Recipe> recipeList;
@@ -124,7 +127,7 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
      * to populate. It implements an {@link View.OnClickListener} to communicate the position for
      * further use.
      */
-    public class RecipeCardHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class RecipeCardHolder extends RecyclerView.ViewHolder implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
         @BindView(R.id.card_image_iv)
         ImageView cardImageIv;
@@ -144,22 +147,7 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
             super(itemView);
             ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
-//            favouriteCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//                @Override
-//                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                    Recipe currentRecipe = recipeList.get(getAdapterPosition());
-//                     recipeClicker.onFavClick(currentRecipe, getAdapterPosition(), isChecked);
-//                }
-//            });
-
-            favouriteCb.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Recipe currentRecipe = recipeList.get(getAdapterPosition());
-                    boolean checked = ((CheckBox)v).isChecked();
-                    recipeClicker.onFavClick(currentRecipe, getAdapterPosition(), checked);
-                }
-            });
+            favouriteCb.setOnCheckedChangeListener(this);
         }
 
         /**
@@ -169,8 +157,15 @@ public class RecipeCardAdapter extends RecyclerView.Adapter<RecipeCardAdapter.Re
          */
         @Override
         public void onClick(View v) {
+            int id = v.getId();
             Recipe currentRecipe = recipeList.get(getAdapterPosition());
-            recipeClicker.onClick(currentRecipe);
+
+        }
+
+        @Override
+        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            Recipe currentRecipe = recipeList.get(getAdapterPosition());
+            recipeClicker.onFavClick(currentRecipe, getAdapterPosition(), b);
         }
     }
 }
